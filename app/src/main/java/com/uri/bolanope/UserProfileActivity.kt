@@ -1,8 +1,10 @@
 package com.uri.bolanope
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,11 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
+import com.uri.bolanope.utils.decodeJWT
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.log
 
 
 class UserProfileActivity : ComponentActivity() {
@@ -179,7 +184,20 @@ fun UserProfile(activityMode: String?, userId: String?){
                     uf = null
                 )
 
-                onClickButtonSignUp(userModel) }) {
+                onClickButtonSignUp(userModel){ response ->
+                    if(response != null){
+
+                        val userIdCreate = decodeJWT(response.token)
+
+                        val intent = Intent(context, HomeActivity::class.java).apply {
+                            putExtra("USER_ID", userIdCreate)
+                        }
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "Falha ao criar conta", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }) {
                 Text("Cadastrar")
             }
         }
@@ -210,9 +228,7 @@ fun UserProfile(activityMode: String?, userId: String?){
             }) {
                 Text("Editar")
             }
-        }
 
-        if("UPDATE" == activityMode){
             Button(onClick = {
                 showDialog = true
             }) {
@@ -250,29 +266,38 @@ fun UserProfile(activityMode: String?, userId: String?){
                     }
                 )
             }
+
+            Button(onClick = { navigateMainActivity(context) }) {
+                Text("Sair")
+            }
+
         }
     }
 
 }
 
-fun onClickButtonSignUp(userModel: UserModel) {
+fun onClickButtonSignUp(userModel: UserModel, callback: (CreateUserResponseModel?) -> Unit) {
     val call = ApiClient.apiService.postUser(userModel)
 
-    call.enqueue(object : Callback<UserModel> {
-        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
+    call.enqueue(object : Callback<CreateUserResponseModel> {
+        override fun onResponse(call: Call<CreateUserResponseModel>, response: Response<CreateUserResponseModel>) {
             if (response.isSuccessful) {
                 val post = response.body()
+                callback(post)
             } else {
                 val errorBody = response.errorBody()?.string()
                 Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
+                callback(null)
             }
         }
 
-        override fun onFailure(call: Call<UserModel>, t: Throwable) {
+        override fun onFailure(call: Call<CreateUserResponseModel>, t: Throwable) {
             Log.d("Falha na requisição", "Erro: ${t.message}")
+            callback(null)
         }
     })
 }
+
 
 fun getUserById(id: String, callback: (UserModel?) -> Unit) {
     val call = ApiClient.apiService.getUserById(id)
@@ -340,4 +365,9 @@ fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
             callback(null)
         }
     })
+}
+
+fun navigateMainActivity(context: Context) {
+    val intent = Intent(context, MainActivity::class.java)
+    context.startActivity(intent)
 }

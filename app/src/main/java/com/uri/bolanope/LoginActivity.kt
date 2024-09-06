@@ -3,6 +3,8 @@ package com.uri.bolanope
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
@@ -85,7 +88,8 @@ fun Login() {
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Senha") }
+            label = { Text("Senha") },
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Button(onClick = { onClickLogin(context, email, password) }) {
@@ -99,14 +103,15 @@ fun onClickLogin(context: Context, email: String, password: String){
     val loginModel: LoginModel = LoginModel(email, password)
 
     loginUser(loginModel){ tokenModel ->
-        val intent = Intent(context, HomeActivity::class.java).apply {
-            if (tokenModel != null) {
+        if(tokenModel != null){
+            val intent = Intent(context, HomeActivity::class.java).apply {
                 putExtra("USER_ID", decodeJWT(tokenModel.token))
             }
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "Falha no login. Email/Senha incorretos", Toast.LENGTH_LONG).show()
         }
-        context.startActivity(intent)
     }
-
 }
 
 fun loginUser(body: LoginModel, callback: (TokenModel?) -> Unit) {

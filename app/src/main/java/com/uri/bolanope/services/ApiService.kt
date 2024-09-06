@@ -1,5 +1,6 @@
 package com.uri.bolanope.services
 
+import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
@@ -16,7 +17,7 @@ interface ApiService {
     fun getUserById(@Path("id") id: String): Call<UserModel>
 
     @POST("user/")
-    fun postUser(@Body body: UserModel): Call<UserModel>
+    fun postUser(@Body body: UserModel): Call<CreateUserResponseModel>
 
     @PUT("user/{id}")
     fun putUserById(@Path("id") id: String , @Body body: UserModel): Call<UserModel>
