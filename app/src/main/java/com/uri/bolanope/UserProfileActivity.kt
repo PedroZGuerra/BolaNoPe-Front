@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
@@ -31,20 +33,28 @@ import retrofit2.Response
 
 
 class UserProfileActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val activityMode = intent.getStringExtra("ACTIVITY_MODE")
+        val userId = intent.getStringExtra("USER_ID")
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BolaNoPeTheme {
-                UserProfile()
+                UserProfile(activityMode, userId)
             }
         }
     }
 }
 
 @Composable
-fun UserProfile(){
+fun UserProfile(activityMode: String?, userId: String?){
+
     val context = LocalContext.current
+
+    val user: UserModel
 
     var email by remember {
         mutableStateOf("")
@@ -62,12 +72,27 @@ fun UserProfile(){
         mutableStateOf("")
     }
 
-    var birthday by remember {
+    var birth by remember {
         mutableStateOf("")
     }
 
     var cep by remember {
         mutableStateOf("")
+    }
+
+    LaunchedEffect(userId) {
+        if (activityMode == "UPDATE" && userId != null) {
+            getUserById(userId) { user ->
+                user?.let {
+                    email = it.email
+                    password = it.password
+                    name = it.name
+                    cpf = it.cpf
+                    birth = it.birth
+                    cep = it.cep
+                }
+            }
+        }
     }
 
     Column (
@@ -81,14 +106,16 @@ fun UserProfile(){
             value = email,
             onValueChange = { email = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email") }
+            label = { Text("Email") },
+            enabled = activityMode != "UPDATE"
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Senha") }
+            label = { Text("Senha") },
+            visualTransformation = PasswordVisualTransformation()
         )
 
         OutlinedTextField(
@@ -106,8 +133,8 @@ fun UserProfile(){
         )
 
         OutlinedTextField(
-            value = birthday,
-            onValueChange = { birthday = it },
+            value = birth,
+            onValueChange = { birth = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Data de nascimento") }
         )
@@ -123,48 +150,155 @@ fun UserProfile(){
             label = { Text("CEP") }
         )
 
-        Button(onClick = {
-            val userModel = UserModel(
-                _id = null,
-                name = name,
-                cpf = cpf,
-                birth = birthday,
-                email = email,
-                password = password,
-                cep = cep,
-                role = null,
-                patio = null,
-                complement = null,
-                neighborhood = null,
-                locality = null,
-                uf = null
-            )
+        if("CREATE" == activityMode){
+            Button(onClick = {
+                val userModel = UserModel(
+                    _id = null,
+                    name = name,
+                    cpf = cpf,
+                    birth = birth,
+                    email = email,
+                    password = password,
+                    cep = cep,
+                    role = null,
+                    patio = null,
+                    complement = null,
+                    neighborhood = null,
+                    locality = null,
+                    uf = null
+                )
 
-            teste(context, userModel) }) {
-            Text("Cadastrar")
+                onClickButtonSignUp(userModel) }) {
+                Text("Cadastrar")
+            }
+        }
+
+        if("UPDATE" == activityMode){
+            Button(onClick = {
+                val userModel = UserModel(
+                    _id = null,
+                    name = name,
+                    cpf = cpf,
+                    birth = birth,
+                    email = email,
+                    password = password,
+                    cep = cep,
+                    role = null,
+                    patio = null,
+                    complement = null,
+                    neighborhood = null,
+                    locality = null,
+                    uf = null
+                )
+
+                if (userId != null) {
+                    onClickButtonUpdateUser(userId ,userModel){
+
+                    }
+                }
+            }) {
+                Text("Editar")
+            }
+        }
+
+        if("UPDATE" == activityMode){
+            Button(onClick = {
+                if (userId != null) {
+                    onClickButtonDeleteUser(userId){
+
+                    }
+                }
+            }) {
+                Text("Excluir")
+            }
         }
     }
 
 }
 
-fun teste(context: Context, userModel: UserModel) {
-    val call = ApiClient.apiService.getUserById("66d5f8b146115025622a3b0a")
+fun onClickButtonSignUp(userModel: UserModel) {
+    val call = ApiClient.apiService.postUser(userModel)
 
     call.enqueue(object : Callback<UserModel> {
         override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
             if (response.isSuccessful) {
                 val post = response.body()
-                Log.d("user retornado", post.toString())
             } else {
-                // Logar o corpo de erro em caso de falha
-                val errorBody = response.errorBody()?.string() // Pegar o corpo de erro
+                val errorBody = response.errorBody()?.string()
                 Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
             }
         }
 
         override fun onFailure(call: Call<UserModel>, t: Throwable) {
-            // Logar a exceção para verificar o motivo da falha
             Log.d("Falha na requisição", "Erro: ${t.message}")
+        }
+    })
+}
+
+fun getUserById(id: String, callback: (UserModel?) -> Unit) {
+    val call = ApiClient.apiService.getUserById(id)
+
+    call.enqueue(object : Callback<UserModel> {
+        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
+            if (response.isSuccessful) {
+                val post = response.body()
+                callback(post)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
+                callback(null)
+            }
+        }
+
+        override fun onFailure(call: Call<UserModel>, t: Throwable) {
+            Log.d("Falha na requisição", "Erro: ${t.message}")
+            callback(null)
+        }
+    })
+}
+
+fun onClickButtonUpdateUser(id: String, userModel: UserModel, callback: (UserModel?) -> Unit) {
+    val call = ApiClient.apiService.putUserById(id, userModel)
+
+    call.enqueue(object : Callback<UserModel> {
+        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
+            if (response.isSuccessful) {
+                val post = response.body()
+                callback(post)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
+                callback(null)
+            }
+        }
+
+        override fun onFailure(call: Call<UserModel>, t: Throwable) {
+            Log.d("Falha na requisição", "Erro: ${t.message}")
+            callback(null)
+        }
+    })
+}
+
+fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
+    val call = ApiClient.apiService.deleteUserById(id)
+
+
+    call.enqueue(object : Callback<UserModel> {
+        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
+            if (response.isSuccessful) {
+                val post = response.body()
+                Log.d("Deu bom", "foi a requisicao")
+                callback(post)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
+                callback(null)
+            }
+        }
+
+        override fun onFailure(call: Call<UserModel>, t: Throwable) {
+            Log.d("Falha na requisição", "Erro: ${t.message}")
+            callback(null)
         }
     })
 }
