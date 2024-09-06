@@ -51,6 +51,13 @@ class UserProfileActivity : ComponentActivity() {
 
 @Composable
 fun UserProfile(activityMode: String?, userId: String?){
+    var TopBarTitle = ""
+    if("CREATE" == activityMode){
+        TopBarTitle = "Registrar"
+    }else{
+        TopBarTitle = "Editar Usuário"
+    }
+    TopBar(TopBarTitle)
 
     val context = LocalContext.current
 
