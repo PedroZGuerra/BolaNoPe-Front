@@ -52,8 +52,12 @@ fun Home(name: String, modifier: Modifier = Modifier) {
             Text("Entrar")
         }
 
-        Button(onClick = { onClickSignIn(context) }) {
+        Button(onClick = { onClickSignUp(context) }) {
             Text("Cadastrar")
+        }
+
+        Button(onClick = { onClickUpdate(context) }) {
+            Text("Editar")
         }
 
     }
@@ -64,8 +68,18 @@ fun onClickLogin(context: Context){
     context.startActivity(intent)
 }
 
-fun onClickSignIn(context: Context){
-    val intent = Intent(context, UserProfileActivity()::class.java)
+fun onClickSignUp(context: Context){
+    val intent = Intent(context, UserProfileActivity()::class.java).apply {
+        putExtra("ACTIVITY_MODE", "CREATE")
+    }
+    context.startActivity(intent)
+}
+
+fun onClickUpdate(context: Context){
+    val intent = Intent(context, UserProfileActivity()::class.java).apply {
+        putExtra("ACTIVITY_MODE", "UPDATE")
+        putExtra("USER_ID", "66da077268f93a0d34cd038a")
+    }
     context.startActivity(intent)
 }
 
