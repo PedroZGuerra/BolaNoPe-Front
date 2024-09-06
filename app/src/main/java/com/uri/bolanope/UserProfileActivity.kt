@@ -148,7 +148,7 @@ fun UserProfile(){
 }
 
 fun teste(context: Context, userModel: UserModel) {
-    val call = ApiClient.apiService.getUserById("66d9ef7ea2e511c0cff15bf3")
+    val call = ApiClient.apiService.getUserById("66d5f8b146115025622a3b0a")
 
     call.enqueue(object : Callback<UserModel> {
         override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
