@@ -1,6 +1,6 @@
 package com.uri.bolanope
 
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,7 +56,9 @@ fun UserProfile(activityMode: String?, userId: String?){
 
     val context = LocalContext.current
 
-    val user: UserModel
+    var showDialog by remember{
+        mutableStateOf(false)
+    }
 
     var email by remember {
         mutableStateOf("")
@@ -203,13 +207,41 @@ fun UserProfile(activityMode: String?, userId: String?){
 
         if("UPDATE" == activityMode){
             Button(onClick = {
-                if (userId != null) {
-                    onClickButtonDeleteUser(userId){
-
-                    }
-                }
+                showDialog = true
             }) {
                 Text("Excluir")
+            }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Confirmação de exclusão") },
+                    text = { Text("Tem certeza de que deseja excluir este usuário?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                                if (userId != null) {
+                                    onClickButtonDeleteUser(userId) {
+                                        val intent = Intent(context, MainActivity::class.java)
+                                        context.startActivity(intent)
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Confirmar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                            }
+                        ) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
             }
         }
     }

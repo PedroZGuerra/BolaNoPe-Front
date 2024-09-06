@@ -1,5 +1,7 @@
 package com.uri.bolanope.services
 
+import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
 import retrofit2.Call
 import retrofit2.http.Body
@@ -21,4 +23,7 @@ interface ApiService {
 
     @DELETE("user/{id}")
     fun deleteUserById(@Path("id") id: String): Call<UserModel>
+
+    @POST("auth/")
+    fun loginUser(@Body body: LoginModel): Call<TokenModel>
 }

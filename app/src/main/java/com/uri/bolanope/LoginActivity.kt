@@ -24,7 +24,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.TokenModel
+import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
+import com.uri.bolanope.utils.decodeJWT
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import kotlin.math.log
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +87,38 @@ fun Login(){
 }
 
 fun onClickLogin(context: Context, email: String, password: String){
-    val intent = Intent(context, LoginActivity::class.java)
-    context.startActivity(intent)
+
+    val loginModel: LoginModel = LoginModel(email, password)
+
+    loginUser(loginModel){ tokenModel ->
+        val intent = Intent(context, HomeActivity::class.java).apply {
+            if (tokenModel != null) {
+                putExtra("USER_ID", decodeJWT(tokenModel.token))
+            }
+        }
+        context.startActivity(intent)
+    }
+
+}
+
+fun loginUser(body: LoginModel, callback: (TokenModel?) -> Unit) {
+    val call = ApiClient.apiService.loginUser(body)
+
+    call.enqueue(object : Callback<TokenModel> {
+        override fun onResponse(call: Call<TokenModel>, response: Response<TokenModel>) {
+            if (response.isSuccessful) {
+                val token = response.body()
+                callback(token)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
+                callback(null)
+            }
+        }
+
+        override fun onFailure(call: Call<TokenModel>, t: Throwable) {
+            Log.d("Falha na requisição", "Erro: ${t.message}")
+            callback(null)
+        }
+    })
 }

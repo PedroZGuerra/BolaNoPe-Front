@@ -17,20 +17,25 @@ import com.uri.bolanope.ui.theme.BolaNoPeTheme
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val userId = intent.getStringExtra("USER_ID")
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BolaNoPeTheme {
-                HomePage()
+                if (userId != null) {
+                    HomePage(userId)
+                }
             }
         }
     }
 }
 
 @Composable
-fun HomePage() {
+fun HomePage(userId: String) {
     Scaffold (
-        bottomBar = { BottomNavigationBar() },
+        bottomBar = { BottomNavigationBar(userId) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         Column(
