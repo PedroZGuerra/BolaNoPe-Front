@@ -60,6 +60,10 @@ fun Home(name: String, modifier: Modifier = Modifier) {
             Text("Editar")
         }
 
+        Button(onClick = { onClickHome(context) }) {
+            Text("Home")
+        }
+
     }
 }
 
@@ -83,3 +87,9 @@ fun onClickUpdate(context: Context){
     context.startActivity(intent)
 }
 
+fun onClickHome(context: Context){
+    val intent = Intent(context, HomeActivity()::class.java).apply {
+        putExtra("ACTIVITY_MODE", "HOME")
+    }
+    context.startActivity(intent)
+}

@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
+    implementation("androidx.compose.material:material:1.4.0")
+    implementation("androidx.compose.material3:material3:1.1.0")
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     testImplementation(libs.junit)
