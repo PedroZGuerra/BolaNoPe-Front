@@ -23,6 +23,7 @@ fun BottomNavigationBar(){
     val context = LocalContext.current
 
     BottomNavigation(
+        backgroundColor = Color(0xFF77CC5C),
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
@@ -30,13 +31,13 @@ fun BottomNavigationBar(){
     )
     {
         BottomNavigationItem(
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home", tint= Color.White) },
             label = { Text("Home", color= Color.White) },
             selected = false,
             onClick = { onClickHome(context) }
         )
         BottomNavigationItem(
-            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Profile") },
+            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Profile", tint= Color.White) },
             label = { Text("Perfil", color= Color.White) },
             selected = false,
             onClick = { onClickProfile(context) }
