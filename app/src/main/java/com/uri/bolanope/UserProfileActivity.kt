@@ -282,6 +282,7 @@ fun onClickButtonUpdateUser(id: String, userModel: UserModel, callback: (UserMod
 fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
     val call = ApiClient.apiService.deleteUserById(id)
 
+
     call.enqueue(object : Callback<UserModel> {
         override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
             if (response.isSuccessful) {

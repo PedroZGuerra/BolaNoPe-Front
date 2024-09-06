@@ -1,10 +1,14 @@
 import com.uri.bolanope.services.ApiService
+import io.github.cdimascio.dotenv.dotenv
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-
-    private const val BASE_URL = "http://192.168.0.105:3000"
+    val dotenv = dotenv {
+        directory = "/assets"
+        filename = "env" // instead of '.env', use 'env'
+    }
+    private val BASE_URL = dotenv["BASE_URL"]
 
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()
