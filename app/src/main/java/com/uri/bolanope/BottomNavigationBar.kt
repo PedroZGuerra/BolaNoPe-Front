@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
-fun BottomNavigationBar(userId: String) {
+fun BottomNavigationBar(navController: NavHostController) {
     val context = LocalContext.current
 
     BottomNavigation(
@@ -34,30 +36,27 @@ fun BottomNavigationBar(userId: String) {
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home", tint= Color.White) },
             label = { Text("Home", color= Color.White) },
             selected = false,
-            onClick = { onClickHome(context) }
+            onClick = { onClickHome(navController) }
         )
         BottomNavigationItem(
             icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Profile", tint= Color.White) },
             label = { Text("Perfil", color= Color.White) },
             selected = false,
-            onClick = { onClickProfile(context, userId) }
+            onClick = { onClickProfile(navController, context) }
         )
     }
 
 }
 
-fun onClickProfile(context: Context, userId: String){
-    val intent = Intent(context, UserProfileActivity()::class.java).apply {
-        putExtra("ACTIVITY_MODE", "UPDATE")
-        putExtra("USER_ID", userId)
+fun onClickProfile(navController: NavHostController, context: Context) {
+    val userId = SharedPreferencesManager.getUserId(context)
+
+    if (userId != null) {
+        navController.navigate("user/$userId")
     }
-    context.startActivity(intent)
 }
 
-fun onClickHome(context: Context){
-    val intent = Intent(context, HomeActivity()::class.java).apply {
-        putExtra("ACTIVITY_MODE", "HOME")
-    }
-    context.startActivity(intent)
+fun onClickHome(navController: NavHostController){
+    navController.navigate("home")
 }
 
