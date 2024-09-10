@@ -1,5 +1,6 @@
 package com.uri.bolanope.services
 
+import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.UserModel
 import retrofit2.Call
 import retrofit2.http.Body
@@ -15,6 +16,9 @@ interface ApiService {
 
     @POST("user/")
     fun postUser(@Body body: UserModel): Call<UserModel>
+
+    @POST("auth/")
+    fun loginUser(@Body body: LoginModel): Call<LoginModel>
 
     @PUT("user/{id}")
     fun putUserById(@Path("id") id: String , @Body body: UserModel): Call<UserModel>
