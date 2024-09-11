@@ -1,19 +1,21 @@
 package com.uri.bolanope
 
-import android.content.Context
-import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,67 +27,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.UserModel
-import com.uri.bolanope.ui.theme.BolaNoPeTheme
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
-
-class UserProfileActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        val activityMode = intent.getStringExtra("ACTIVITY_MODE")
-        val userId = intent.getStringExtra("USER_ID")
-
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BolaNoPeTheme {
-                UserProfile(activityMode, userId)
-            }
-        }
-    }
-}
+import com.uri.bolanope.services.ApiClient
+import com.uri.bolanope.services.apiCall
+import com.uri.bolanope.utils.SharedPreferencesManager
+import com.uri.bolanope.utils.decodeJWT
 
 @Composable
-fun UserProfile(activityMode: String?, userId: String?){
-    var TopBarTitle = ""
-    if("CREATE" == activityMode){
-        TopBarTitle = "Registrar"
-    }else{
-        TopBarTitle = "Editar Usuário"
-    }
-    TopBar(TopBarTitle)
+fun UserProfile(navController: NavHostController, userId: String?) {
+    val activityMode = if (userId.isNullOrEmpty()) "CREATE" else "UPDATE"
 
     val context = LocalContext.current
 
-    val user: UserModel
-
-    var email by remember {
-        mutableStateOf("")
-    }
-
-    var password by remember {
-        mutableStateOf("")
-    }
-
-    var name by remember {
-        mutableStateOf("")
-    }
-
-    var cpf by remember {
-        mutableStateOf("")
-    }
-
-    var birth by remember {
-        mutableStateOf("")
-    }
-
-    var cep by remember {
-        mutableStateOf("")
-    }
+    var showDialog by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var cpf by remember { mutableStateOf("") }
+    var birth by remember { mutableStateOf("") }
+    var cep by remember { mutableStateOf("") }
 
     LaunchedEffect(userId) {
         if (activityMode == "UPDATE" && userId != null) {
@@ -102,7 +64,7 @@ fun UserProfile(activityMode: String?, userId: String?){
         }
     }
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -157,7 +119,7 @@ fun UserProfile(activityMode: String?, userId: String?){
             label = { Text("CEP") }
         )
 
-        if("CREATE" == activityMode){
+        if (activityMode == "CREATE") {
             Button(onClick = {
                 val userModel = UserModel(
                     _id = null,
@@ -175,137 +137,125 @@ fun UserProfile(activityMode: String?, userId: String?){
                     uf = null
                 )
 
-                onClickButtonSignUp(userModel) }) {
+                onClickButtonSignUp(userModel) { response ->
+                    if (response != null) {
+                        val userIdCreate = decodeJWT(response.token)
+
+                        if (userIdCreate != null) {
+                            SharedPreferencesManager.saveUserId(context, userIdCreate)
+                        }
+
+                        navController.navigate("home")
+                    } else {
+                        Toast.makeText(context, "Falha ao criar conta", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }) {
                 Text("Cadastrar")
             }
         }
 
-        if("UPDATE" == activityMode){
-            Button(onClick = {
-                val userModel = UserModel(
-                    _id = null,
-                    name = name,
-                    cpf = cpf,
-                    birth = birth,
-                    email = email,
-                    password = password,
-                    cep = cep,
-                    role = null,
-                    patio = null,
-                    complement = null,
-                    neighborhood = null,
-                    locality = null,
-                    uf = null
-                )
+        if (activityMode == "UPDATE") {
 
-                if (userId != null) {
-                    onClickButtonUpdateUser(userId ,userModel){
+            Spacer(modifier = Modifier.height(32.dp))
 
+            Button(
+                onClick = {
+                    val userModel = UserModel(
+                        _id = null,
+                        name = name,
+                        cpf = cpf,
+                        birth = birth,
+                        email = email,
+                        password = password,
+                        cep = cep,
+                        role = null,
+                        patio = null,
+                        complement = null,
+                        neighborhood = null,
+                        locality = null,
+                        uf = null
+                    )
+
+                    if (userId != null) {
+                        onClickButtonUpdateUser(userId, userModel) { }
                     }
-                }
-            }) {
-                Text("Editar")
+                }, modifier = Modifier.width(150.dp)
+            ) {
+                Text("Finalizar edição")
             }
-        }
 
-        if("UPDATE" == activityMode){
-            Button(onClick = {
-                if (userId != null) {
-                    onClickButtonDeleteUser(userId){
+            Spacer(modifier = Modifier.height(64.dp))
 
-                    }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                Button(
+                    onClick = {
+                        showDialog = true
+                    },
+                    modifier = Modifier.width(150.dp)
+                ) {
+                    Text("Apagar conta")
                 }
-            }) {
-                Text("Excluir")
+
+                Button(
+                    onClick = { navController.navigate("welcome") },
+                    modifier = Modifier.width(150.dp)
+                ) {
+                    Text("Sair")
+                }
+            }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Confirmação de exclusão") },
+                    text = { Text("Tem certeza de que deseja excluir este usuário?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                                if (userId != null) {
+                                    onClickButtonDeleteUser(userId) {
+                                        val intent = Intent(context, MainActivity::class.java)
+                                        context.startActivity(intent)
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Confirmar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
             }
         }
     }
-
 }
 
-fun onClickButtonSignUp(userModel: UserModel) {
+
+fun onClickButtonSignUp(userModel: UserModel, callback: (CreateUserResponseModel?) -> Unit) {
     val call = ApiClient.apiService.postUser(userModel)
-
-    call.enqueue(object : Callback<UserModel> {
-        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
-            if (response.isSuccessful) {
-                val post = response.body()
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
-            }
-        }
-
-        override fun onFailure(call: Call<UserModel>, t: Throwable) {
-            Log.d("Falha na requisição", "Erro: ${t.message}")
-        }
-    })
+    apiCall(call, callback)
 }
+
 
 fun getUserById(id: String, callback: (UserModel?) -> Unit) {
     val call = ApiClient.apiService.getUserById(id)
-
-    call.enqueue(object : Callback<UserModel> {
-        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
-            if (response.isSuccessful) {
-                val post = response.body()
-                callback(post)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
-                callback(null)
-            }
-        }
-
-        override fun onFailure(call: Call<UserModel>, t: Throwable) {
-            Log.d("Falha na requisição", "Erro: ${t.message}")
-            callback(null)
-        }
-    })
+    apiCall(call, callback)
 }
 
 fun onClickButtonUpdateUser(id: String, userModel: UserModel, callback: (UserModel?) -> Unit) {
     val call = ApiClient.apiService.putUserById(id, userModel)
-
-    call.enqueue(object : Callback<UserModel> {
-        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
-            if (response.isSuccessful) {
-                val post = response.body()
-                callback(post)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
-                callback(null)
-            }
-        }
-
-        override fun onFailure(call: Call<UserModel>, t: Throwable) {
-            Log.d("Falha na requisição", "Erro: ${t.message}")
-            callback(null)
-        }
-    })
+    apiCall(call, callback)
 }
 
 fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
     val call = ApiClient.apiService.deleteUserById(id)
-
-
-    call.enqueue(object : Callback<UserModel> {
-        override fun onResponse(call: Call<UserModel>, response: Response<UserModel>) {
-            if (response.isSuccessful) {
-                val post = response.body()
-                Log.d("Deu bom", "foi a requisicao")
-                callback(post)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Log.d("Erro na requisição", "Código: ${response.code()}, Erro: $errorBody")
-                callback(null)
-            }
-        }
-
-        override fun onFailure(call: Call<UserModel>, t: Throwable) {
-            Log.d("Falha na requisição", "Erro: ${t.message}")
-            callback(null)
-        }
-    })
+    apiCall(call, callback)
 }
