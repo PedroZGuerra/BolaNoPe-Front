@@ -33,7 +33,7 @@ fun TopBar(text: String) {
             ) {
                 Text(
                     text,
-                    color = Color.Black,
+                    color = Color.White,
                 )
             }
         },
@@ -44,7 +44,7 @@ fun TopBar(text: String) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
+                    tint = Color.White
                 )
             }
         },
