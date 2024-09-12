@@ -25,6 +25,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.TokenModel
+import com.uri.bolanope.services.ApiClient
+import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
@@ -80,7 +84,7 @@ fun HomePage(navController: NavHostController) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                             .clickable {
-                                navController.navigate("user")
+                                navController.navigate("reserveField/66e32f71ae721c476a71b312")
                             }
                     )
                 }
@@ -88,4 +92,6 @@ fun HomePage(navController: NavHostController) {
 
         }
     }
+
+
 }

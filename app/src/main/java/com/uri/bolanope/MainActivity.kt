@@ -59,6 +59,19 @@ class MainActivity : ComponentActivity() {
                         composable("user") {
                             UserProfile(navController, null)
                         }
+                        composable("reserveField") {
+                            ReserveField(navController, null)
+                        }
+                        composable(
+                            "reserveField/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            ReserveField(navController, id)
+                        }
                         composable(
                             route = "user/{id}",
                             arguments = listOf(
