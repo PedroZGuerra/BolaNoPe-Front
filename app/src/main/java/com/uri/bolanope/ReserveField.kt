@@ -89,6 +89,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
         location = location,
         obs = obs,
         value_hour = value_hour,
+        image = null
     )
 
     LaunchedEffect(fieldId) {

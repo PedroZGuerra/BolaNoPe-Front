@@ -66,7 +66,7 @@ fun Field(navController: NavHostController, fieldId: String?) {
 
     LaunchedEffect(fieldId) {
         if (activityMode == "UPDATE" && fieldId != null) {
-            getFieldById(fieldId) { field ->
+            getFieldByIdFieldActivity(fieldId) { field ->
                 field?.let {
                     name = it.name
                     location = it.location
@@ -317,7 +317,7 @@ fun TimeDropdown(
     }
 }
 
-fun getFieldById(fieldId: String, callback: (FieldModel?) -> Unit){
+fun getFieldByIdFieldActivity(fieldId: String, callback: (FieldModel?) -> Unit){
     val call = ApiClient.apiService.getFieldById(fieldId)
     apiCall(call, callback)
 }
