@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.model.FieldModel
@@ -53,6 +59,18 @@ fun Fields(navController: NavHostController) {
 
     Scaffold(
         topBar = { TopBar("Quadras") },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("field")
+                },
+                backgroundColor = Color(0xFF4CAF50),
+                contentColor = Color.White,
+                modifier = Modifier.size(72.dp)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Adicionar campo")
+            }
+        },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         Column(
@@ -78,19 +96,29 @@ fun Fields(navController: NavHostController) {
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column {
-                                        Text(text = field.name, style = MaterialTheme.typography.h6)
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = field.name,
+                                            style = MaterialTheme.typography.h6,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
 
                                     Column(
-                                        horizontalAlignment = Alignment.End,
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        modifier = Modifier.weight(0.5f),
+                                        horizontalAlignment = Alignment.End
                                     ) {
                                         Button(
-                                            onClick = { /* Ação do primeiro botão (Editar) */ },
-                                            modifier = Modifier.fillMaxWidth(0.5f),
+                                            onClick = {
+                                                navController.navigate("field/${field._id}")
+                                            },
+                                            modifier = Modifier.fillMaxWidth(),
                                             colors = ButtonDefaults.buttonColors(
                                                 backgroundColor = Color(0xFF4CAF50)
                                             )
@@ -100,11 +128,10 @@ fun Fields(navController: NavHostController) {
 
                                         Button(
                                             onClick = {
-                                                // Abre o diálogo de confirmação
                                                 fieldToDelete = field
                                                 showDialog = true
                                             },
-                                            modifier = Modifier.fillMaxWidth(0.5f),
+                                            modifier = Modifier.fillMaxWidth(),
                                             colors = ButtonDefaults.buttonColors(
                                                 backgroundColor = Color(0xFFC8473F)
                                             )
