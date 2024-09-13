@@ -3,13 +3,14 @@ package com.uri.bolanope.utils
 import android.util.Log
 import com.auth0.android.jwt.JWT
 
-fun decodeJWT(token: String): String? {
-    Log.d("token2", token)
+fun decodeJWT(token: String): Pair<String?, String?> {
     val jwt = JWT(token)
 
     val payload = jwt.claims
 
-    val userId = payload["sub"]?.asString()
+    val userId = payload["userId"]?.asString()
 
-    return userId
+    val role = payload["role"]?.asString()
+
+    return Pair(userId, role)
 }

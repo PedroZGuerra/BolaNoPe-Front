@@ -12,6 +12,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
@@ -29,21 +32,34 @@ fun Login(navController: NavHostController) {
 
     Scaffold(
         topBar = {
-            TopBar("Login")
+            TopBar("Entrar")
         },
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .systemBarsPadding(),
         content = { paddingValues ->
+
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top
             ) {
+
+                Image(
+                    painter = painterResource(id = R.drawable.ic_logo_bolanope),
+                    contentDescription = "Logo Bola no Pé",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(top = 100.dp)
+                        .size(150.dp)
+                )
+
+                Spacer(modifier = Modifier.height(64.dp))
 
                 OutlinedTextField(
                     value = email,
@@ -84,13 +100,20 @@ fun onClickLogin(navController: NavHostController, context: Context, email: Stri
 
     loginUser(loginModel) { tokenModel ->
         if (tokenModel != null) {
-            val userId = decodeJWT(tokenModel.token)
+            val (userId, role) = decodeJWT(tokenModel.token)
 
-            if (userId != null) {
+            if (userId != null && role != null) {
                 SharedPreferencesManager.saveUserId(context, userId)
+                SharedPreferencesManager.saveUserRole(context, role)
+                SharedPreferencesManager.saveToken(context, tokenModel.token)
+
+                if (role == "admin") {
+                    navController.navigate("homeAdmin")
+                } else {
+                    navController.navigate("home")
+                }
             }
 
-            navController.navigate("home")
         } else {
             Toast.makeText(context, "Falha no login. Email/Senha incorretos", Toast.LENGTH_LONG).show()
         }

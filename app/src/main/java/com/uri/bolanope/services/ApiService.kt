@@ -10,6 +10,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -35,4 +36,13 @@ interface ApiService {
 
     @POST("reserve/")
     fun postReserve(@Body body: ReserveModel): Call<ReserveModel>
+
+    @GET("field/")
+    fun getAllFields(): Call<List<FieldModel>>
+
+    @DELETE("field/{id}")
+    fun deleteField(
+        @Path("id") id: String,
+        @Header("Authorization") authHeader: String
+    ): Call<Void>
 }
