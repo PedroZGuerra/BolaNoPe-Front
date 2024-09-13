@@ -8,5 +8,6 @@ data class FieldModel(
     val obs: String?,
     val open_time: String,
     val close_time: String,
-    val available: Boolean
+    val available: Boolean,
+    val image: String?
 )

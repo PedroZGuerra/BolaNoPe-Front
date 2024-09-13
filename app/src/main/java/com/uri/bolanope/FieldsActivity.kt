@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.model.FieldModel
@@ -95,21 +96,29 @@ fun Fields(navController: NavHostController) {
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column {
-                                        Text(text = field.name, style = MaterialTheme.typography.h6)
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = field.name,
+                                            style = MaterialTheme.typography.h6,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
 
                                     Column(
-                                        horizontalAlignment = Alignment.End,
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        modifier = Modifier.weight(0.5f),
+                                        horizontalAlignment = Alignment.End
                                     ) {
                                         Button(
                                             onClick = {
                                                 navController.navigate("field/${field._id}")
                                             },
-                                            modifier = Modifier.fillMaxWidth(0.5f),
+                                            modifier = Modifier.fillMaxWidth(),
                                             colors = ButtonDefaults.buttonColors(
                                                 backgroundColor = Color(0xFF4CAF50)
                                             )
@@ -122,7 +131,7 @@ fun Fields(navController: NavHostController) {
                                                 fieldToDelete = field
                                                 showDialog = true
                                             },
-                                            modifier = Modifier.fillMaxWidth(0.5f),
+                                            modifier = Modifier.fillMaxWidth(),
                                             colors = ButtonDefaults.buttonColors(
                                                 backgroundColor = Color(0xFFC8473F)
                                             )
