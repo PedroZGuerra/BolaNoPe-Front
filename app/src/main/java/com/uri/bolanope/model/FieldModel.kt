@@ -5,7 +5,7 @@ data class FieldModel(
     val name: String,
     val location: String,
     val value_hour: String,
-    val obs: String?,
+    val obs: String,
     val open_time: String,
     val close_time: String,
     val available: Boolean,
