@@ -9,16 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.uri.bolanope.utils.SharedPreferencesManager
+
 
 @Composable
 fun HomePage(navController: NavHostController) {
-    val context = LocalContext.current
-    val userId = SharedPreferencesManager.getUserId(context)
-
     Scaffold (
         bottomBar = { BottomNavigationBar(navController) },
         modifier = Modifier.fillMaxSize()

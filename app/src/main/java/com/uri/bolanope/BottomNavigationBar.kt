@@ -1,7 +1,7 @@
 package com.uri.bolanope
 
 import android.content.Context
-import android.content.Intent
+
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding

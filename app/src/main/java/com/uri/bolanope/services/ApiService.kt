@@ -1,6 +1,7 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.CreateUserResponseModel
+import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
@@ -8,6 +9,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -27,4 +29,13 @@ interface ApiService {
 
     @POST("auth/")
     fun loginUser(@Body body: LoginModel): Call<TokenModel>
+
+    @GET("field/")
+    fun getAllFields(): Call<List<FieldModel>>
+
+    @DELETE("field/{id}")
+    fun deleteField(
+        @Path("id") id: String,
+        @Header("Authorization") authHeader: String
+    ): Call<Void>
 }
