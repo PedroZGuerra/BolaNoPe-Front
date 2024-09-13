@@ -44,7 +44,6 @@ fun HomePage(navController: NavHostController) {
     val context = LocalContext.current
     val fields = remember { mutableStateOf<List<FieldModel>?>(null) }
 
-
     LaunchedEffect(Unit) {
         getAllFields { result ->
             if (result != null) {
@@ -97,7 +96,7 @@ fun HomePage(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(8.dp)
                     ) {
-                        val imageBase64 = field.image?.decodeBase64().toString()
+                        val imageBase64 = field.image.toString()
                         val bitmap = base64ToBitmap(imageBase64)
                         bitmap?.let {
                             Image(
