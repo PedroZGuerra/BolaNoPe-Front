@@ -35,9 +35,6 @@ interface ApiService {
     @POST("auth/")
     fun loginUser(@Body body: LoginModel): Call<TokenModel>
 
-    @GET("field/{id}")
-    fun getFieldById(@Path("id") id: String): Call<FieldModel>
-
     @POST("reserve/")
     fun postReserve(@Body body: ReserveModel): Call<ReserveModel>
 
