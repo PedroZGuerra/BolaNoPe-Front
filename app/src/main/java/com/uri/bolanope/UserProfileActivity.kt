@@ -226,9 +226,11 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                         }
 
                         Button(
-                            onClick = { 
-                              navController.navigate("welcome") 
-                              SharedPreferencesManager.clearUserId(context)
+                            onClick = {
+                                navController.navigate("welcome")
+                                SharedPreferencesManager.clearUserId(context)
+                                SharedPreferencesManager.clearToken(context)
+                                SharedPreferencesManager.clearUserRole(context)
                             },
                             modifier = Modifier.width(150.dp)
                         ) {
@@ -245,15 +247,18 @@ fun UserProfile(navController: NavHostController, userId: String?) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("Confirmação de exclusão") },
-            text = { Text("Tem certeza de que deseja excluir este usuário?") },
+            text = { Text("Tem certeza de que deseja excluir sua conta?") },
             confirmButton = {
                 TextButton(
                     onClick = {
                         showDialog = false
                         if (userId != null) {
                             onClickButtonDeleteUser(userId) {
-                                val intent = Intent(context, MainActivity::class.java)
-                                context.startActivity(intent)
+                                SharedPreferencesManager.clearUserId(context)
+                                SharedPreferencesManager.clearToken(context)
+                                SharedPreferencesManager.clearUserRole(context)
+
+                                navController.navigate("welcome")
                             }
                         }
                     }

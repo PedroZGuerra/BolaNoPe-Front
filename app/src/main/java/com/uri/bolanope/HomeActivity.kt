@@ -84,7 +84,7 @@ fun HomePage(navController: NavHostController) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                             .clickable {
-                                navController.navigate("reserveField/66e32f71ae721c476a71b312")
+                                navController.navigate("reserveField/66e469b996cb44ea47433cd4")
                             }
                     )
                 }
@@ -92,6 +92,4 @@ fun HomePage(navController: NavHostController) {
 
         }
     }
-
-
 }

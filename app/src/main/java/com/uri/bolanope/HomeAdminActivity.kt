@@ -12,22 +12,46 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TabRowDefaults.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
 fun HomeAdmin(navController: NavHostController) {
+    val context = LocalContext.current
     Scaffold (
         topBar = { TopBar("Home") },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    SharedPreferencesManager.clearToken(context)
+                    SharedPreferencesManager.clearUserId(context)
+                    SharedPreferencesManager.clearUserRole(context)
+                    navController.navigate("welcome")
+                },
+                backgroundColor = Color(0xFF4CAF50),
+                contentColor = Color.White,
+                modifier = Modifier.size(72.dp)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sair")
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
