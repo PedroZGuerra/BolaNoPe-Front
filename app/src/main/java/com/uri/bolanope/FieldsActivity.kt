@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +58,18 @@ fun Fields(navController: NavHostController) {
 
     Scaffold(
         topBar = { TopBar("Quadras") },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("field")
+                },
+                backgroundColor = Color(0xFF4CAF50),
+                contentColor = Color.White,
+                modifier = Modifier.size(72.dp)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Adicionar campo")
+            }
+        },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         Column(
@@ -89,7 +106,9 @@ fun Fields(navController: NavHostController) {
                                         verticalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Button(
-                                            onClick = { /* Ação do primeiro botão (Editar) */ },
+                                            onClick = {
+                                                navController.navigate("field/${field._id}")
+                                            },
                                             modifier = Modifier.fillMaxWidth(0.5f),
                                             colors = ButtonDefaults.buttonColors(
                                                 backgroundColor = Color(0xFF4CAF50)
@@ -100,7 +119,6 @@ fun Fields(navController: NavHostController) {
 
                                         Button(
                                             onClick = {
-                                                // Abre o diálogo de confirmação
                                                 fieldToDelete = field
                                                 showDialog = true
                                             },
