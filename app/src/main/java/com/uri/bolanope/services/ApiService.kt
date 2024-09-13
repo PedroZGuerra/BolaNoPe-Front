@@ -3,6 +3,7 @@ package com.uri.bolanope.services
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
 import retrofit2.Call
@@ -29,6 +30,12 @@ interface ApiService {
 
     @POST("auth/")
     fun loginUser(@Body body: LoginModel): Call<TokenModel>
+
+    @GET("field/{id}")
+    fun getFieldById(@Path("id") id: String): Call<FieldModel>
+
+    @POST("reserve/")
+    fun postReserve(@Body body: ReserveModel): Call<ReserveModel>
 
     @GET("field/")
     fun getAllFields(): Call<List<FieldModel>>
