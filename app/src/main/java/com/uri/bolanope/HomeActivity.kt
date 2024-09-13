@@ -70,7 +70,7 @@ fun HomePage(navController: NavHostController) {
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp) // Adjust height as needed
+                    .height(200.dp)
             ) { page ->
                 Card(
                     shape = RoundedCornerShape(8.dp),

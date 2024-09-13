@@ -64,6 +64,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.1.0")
     implementation("com.google.accompanist:accompanist-pager:0.30.1")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+    implementation("androidx.compose.material:material-icons-core:<version>")
+    implementation("androidx.compose.material:material-icons-extended:<version>")
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation ("com.auth0.android:jwtdecode:2.0.0")
