@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,6 +37,7 @@ import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
+import okio.ByteString.Companion.decodeBase64
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -95,16 +97,21 @@ fun HomePage(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(8.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.quadra1),
-                            contentDescription = "Field ${field.name}",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable {
-                                    navController.navigate("reserveField/${field._id}")
-                                }
-                        )
+                        val imageBase64 = field.image?.decodeBase64().toString()
+                        val bitmap = base64ToBitmap(imageBase64)
+                        bitmap?.let {
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = "Field ${field.name}",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable {
+                                        navController.navigate("reserveField/${field._id}")
+                                    }
+                            )
+
+                        }
                     }
                 }
             }
