@@ -2,9 +2,11 @@ package com.uri.bolanope
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -23,15 +25,15 @@ fun TopBar(text: String) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     TopAppBar(
-        elevation = 0.dp,
         title = {
             Box(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text,
-                    color = Color.Black,
+                    color = Color.White,
                 )
             }
         },
@@ -42,10 +44,11 @@ fun TopBar(text: String) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
+                    tint = Color.White
                 )
             }
         },
-        backgroundColor = Color.White
+        backgroundColor = Color(0xFF77CC5C),
+        modifier = Modifier.statusBarsPadding()
     )
 }
