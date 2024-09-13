@@ -1,5 +1,7 @@
 package com.uri.bolanope
 
+import android.app.Application.ActivityLifecycleCallbacks
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.util.Calendar
@@ -23,6 +25,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.filled.AttachMoney
@@ -34,6 +37,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -58,6 +63,9 @@ import com.uri.bolanope.ui.theme.BolaNoPeTheme
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
 import com.uri.bolanope.utils.decodeJWT
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.Locale
 
 @Composable
 fun ReserveField(navController: NavHostController, fieldId: String?) {
@@ -70,6 +78,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var location by remember { mutableStateOf("") }
     var obs by remember { mutableStateOf("") }
     var value_hour by remember { mutableStateOf("") }
+    var reserve_day by remember { mutableStateOf("") }
 
     val field = FieldModel(
         _id = _id,
@@ -193,6 +202,12 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
     val context = LocalContext.current
     var start_time_selected by remember { mutableStateOf(field.open_time) }
     var end_time_selected by remember { mutableStateOf(field.close_time) }
+
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val today = dateFormat.format(Calendar.getInstance().time)
+    var reserve_day by remember { mutableStateOf(today) }
+    var total_price by remember { mutableFloatStateOf(0.0F) }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
@@ -209,6 +224,7 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 Text(text = "Escolha os horários", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
@@ -224,10 +240,11 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                         context = context
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                var total_price by remember { mutableFloatStateOf(0.0F) }
+
+                DateSelectionField(context, reserve_day, onDaySelected = { reserve_day = it})
                 total_price = (timeToFloat(end_time_selected) - timeToFloat(start_time_selected)) * priceToFloat(field.value_hour)
                 Text("Valor total: R$ %.2f".format(total_price))
+
                 Spacer(modifier = Modifier.height(10.dp))
                 val userId = SharedPreferencesManager.getUserId(context)
                 Button(
@@ -238,7 +255,8 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                             start_hour = start_time_selected,
                             end_hour = end_time_selected,
                             id_field = fieldId.toString(),
-                            final_value = null
+                            final_value = null,
+                            reserve_day = reserve_day
                         )
                         postReserve(reserveModel) { response ->
                             if (response != null) {
@@ -256,11 +274,55 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                 }
 
                 TextButton(onClick = onDismiss) {
-                    Text(text = "Cancelar", fontSize = 12.sp)
+                    Text(
+                        text = "Cancelar",
+                        style = MaterialTheme.typography.body1.copy(textDecoration = TextDecoration.Underline),
+                        fontSize = 12.sp
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+fun DateSelectionField(
+    context: Context,
+    reserveDay: String,
+    onDaySelected: (String) -> Unit,
+) {
+
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance()
+            selectedDate.set(year, month, dayOfMonth)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formattedDay = dateFormat.format(selectedDate.time)
+            onDaySelected(formattedDay)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    Row {
+
+        Text(
+            "Dia da Reserva:",
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+        )
+        TextButton(onClick = {datePickerDialog.show()}) {
+            Text(
+                reserveDay,
+                style = MaterialTheme.typography.body1.copy(textDecoration = TextDecoration.Underline)
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(10.dp))
 }
 
 fun timeToFloat(time: String): Float {

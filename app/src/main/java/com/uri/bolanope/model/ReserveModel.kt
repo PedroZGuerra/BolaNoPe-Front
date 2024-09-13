@@ -7,4 +7,5 @@ data class ReserveModel(
     val end_hour: String,
     val id_field: String,
     val final_value: String?,
+    val reserve_day: String?,
 )
