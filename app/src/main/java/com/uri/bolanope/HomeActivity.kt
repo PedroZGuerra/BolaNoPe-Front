@@ -1,6 +1,7 @@
 package com.uri.bolanope
 
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.services.ApiClient
@@ -34,12 +40,20 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 @Composable
 fun HomePage(navController: NavHostController) {
     val context = LocalContext.current
-    val userId = SharedPreferencesManager.getUserId(context)
-    val imageList = listOf(
-        R.drawable.quadra1
-    )
-    val pagerState = rememberPagerState(pageCount = {imageList.size})
-    val coroutineScope = rememberCoroutineScope()
+    val fields = remember { mutableStateOf<List<FieldModel>?>(null) }
+
+
+    LaunchedEffect(Unit) {
+        getAllFields { result ->
+            if (result != null) {
+                fields.value = result
+            } else {
+                Toast.makeText(context, "Falha ao carregar os campos.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    val pagerState = rememberPagerState(pageCount = {fields.value?.size ?:0})
 
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) },
@@ -66,30 +80,36 @@ fun HomePage(navController: NavHostController) {
                     .padding(top = 16.dp, start = 8.dp)
                     .align(Alignment.Start)
             )
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            ) { page ->
-                Card(
-                    shape = RoundedCornerShape(8.dp),
+            fields.value?.let { fieldList ->
+                HorizontalPager(
+                    state = pagerState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = imageList[page]),
-                        contentDescription = "Image $page",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                            .clickable {
-                                navController.navigate("reserveField/66e469b996cb44ea47433cd4")
-                            }
-                    )
+                        .height(200.dp)
+                ) { page ->
+                    val field = fields.value!![page]
+
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.quadra1),
+                            contentDescription = "Field ${field.name}",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    navController.navigate("reserveField/${field._id}")
+                                }
+                        )
+                    }
                 }
             }
-
         }
     }
+
+
 }
