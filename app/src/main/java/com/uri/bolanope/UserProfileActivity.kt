@@ -1,6 +1,7 @@
 package com.uri.bolanope
 
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,8 @@ fun UserProfile(navController: NavHostController, userId: String?) {
     val activityMode = if (userId.isNullOrEmpty()) "CREATE" else "UPDATE"
 
     val context = LocalContext.current
+
+    val userId = SharedPreferencesManager.getUserId(context)
 
     var showDialog by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
@@ -200,7 +203,10 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                 }
 
                 Button(
-                    onClick = { navController.navigate("welcome") },
+                    onClick = {
+                        navController.navigate("welcome")
+                        SharedPreferencesManager.clearUserId(context)
+                              },
                     modifier = Modifier.width(150.dp)
                 ) {
                     Text("Sair")

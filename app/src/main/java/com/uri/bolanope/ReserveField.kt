@@ -27,6 +27,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
@@ -51,6 +54,8 @@ import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
+import com.uri.bolanope.ui.theme.BolaNoPeTheme
+import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
 import com.uri.bolanope.utils.decodeJWT
 
@@ -113,21 +118,16 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             Spacer(modifier = Modifier.height(8.dp))
             FieldDetailRow(
-                icon = Icons.Default.Check,
+                icon = if (available) Icons.Default.Check else Icons.Default.DoNotDisturb,
                 label = "Disponível:",
-                value = if (available) "Sim" else "Não"
+                value = if (available) "Sim" else "Não",
+                color = if (available) Green80 else Color.Red
             )
 
             FieldDetailRow(
                 icon = Icons.Default.Schedule,
-                label = "Horário de Abertura:",
-                value = open_time
-            )
-
-            FieldDetailRow(
-                icon = Icons.Default.Schedule,
-                label = "Horário de Fechamento:",
-                value = close_time
+                label = "Horário:",
+                value = "${open_time} - ${close_time}"
             )
 
             FieldDetailRow(
@@ -169,16 +169,17 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 }
 
 @Composable
-fun FieldDetailRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+fun FieldDetailRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String, color: Color = Color.Black) {
+    Spacer(modifier = Modifier.height(16.dp))
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(vertical = 4.dp)
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp), tint = color)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(label, fontWeight = FontWeight.Bold)
+        Text(label, fontWeight = FontWeight.Bold, color = color)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(value)
+        Text(value, color = color)
     }
 }
 
@@ -223,38 +224,54 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                         context = context
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+                var total_price by remember { mutableFloatStateOf(0.0F) }
+                total_price = (timeToFloat(end_time_selected) - timeToFloat(start_time_selected)) * priceToFloat(field.value_hour)
+                Text("Valor total: R$ %.2f".format(total_price))
+                Spacer(modifier = Modifier.height(10.dp))
                 val userId = SharedPreferencesManager.getUserId(context)
-                    Button(
-                        onClick = {
-                            val reserveModel = ReserveModel(
-                                _id = null,
-                                id_user = userId.toString(),
-                                start_hour = start_time_selected,
-                                end_hour = end_time_selected,
-                                id_field = fieldId.toString(),
-                                final_value = null
-                            )
-                            postReserve(reserveModel) { response ->
-                                if (response != null) {
-                                    Log.d("ReserveField", "${response}")
-                                    Toast.makeText(context, "Reserva Criada com sucesso", Toast.LENGTH_LONG).show()
-                                    onDismiss()
-                                } else {
-                                    Toast.makeText(context, "Falha ao criar reserva", Toast.LENGTH_LONG).show()
-                                }
+                Button(
+                    onClick = {
+                        val reserveModel = ReserveModel(
+                            _id = null,
+                            id_user = userId.toString(),
+                            start_hour = start_time_selected,
+                            end_hour = end_time_selected,
+                            id_field = fieldId.toString(),
+                            final_value = null
+                        )
+                        postReserve(reserveModel) { response ->
+                            if (response != null) {
+                                Log.d("ReserveField", "${response}")
+                                Toast.makeText(context, "Reserva Criada com sucesso", Toast.LENGTH_LONG).show()
+                                onDismiss()
+                            } else {
+                                Toast.makeText(context, "Falha ao criar reserva", Toast.LENGTH_LONG).show()
                             }
-
                         }
-                    ) {
-                        Text("Confirmar")
+
                     }
-                    TextButton(onClick = onDismiss) {
-                        Text("Fechar")
-                    }
+                ) {
+                    Text("Confirmar")
+                }
+
+                TextButton(onClick = onDismiss) {
+                    Text(text = "Cancelar", fontSize = 12.sp)
+                }
             }
         }
     }
+}
+
+fun timeToFloat(time: String): Float {
+    val parts = time.split(":")
+    val hours = parts[0].toFloat()
+    val minutes = parts[1].toFloat() / 60
+    return hours + minutes
+}
+
+fun priceToFloat(price: String): Float {
+    return price.replace(",", ".").toFloatOrNull() ?: 0.0F
 }
 
 fun postReserve(reserveModel: ReserveModel, callback: (ReserveModel?) -> Unit) {
