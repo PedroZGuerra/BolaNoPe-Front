@@ -57,6 +57,12 @@ fun UserProfile(navController: NavHostController, userId: String?) {
     var birth by remember { mutableStateOf("") }
     var cep by remember { mutableStateOf("") }
 
+    val cpf_mask = "###.###.###-##"
+    val cpf_len = 11
+
+    val date_mask = "##/##/####"
+    val date_len = 8
+
     LaunchedEffect(userId) {
         if (activityMode == "UPDATE" && userId != null) {
             getUserById(userId) { user ->
@@ -112,18 +118,29 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     label = { Text("Nome") }
                 )
 
+
                 OutlinedTextField(
                     value = cpf,
-                    onValueChange = { cpf = it },
+                    onValueChange = { it ->
+                        if (it.length <= cpf_len) {
+                            cpf = it.filter { it.isDigit() }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("CPF") }
+                    label = { Text("CPF") },
+                    visualTransformation = MaskVisualTransformation(cpf_mask)
                 )
 
                 OutlinedTextField(
                     value = birth,
-                    onValueChange = { birth = it },
+                    onValueChange = { it ->
+                        if (it.length <= date_len) {
+                            birth = it.filter { it.isDigit() }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Data de nascimento") }
+                    label = { Text("Data de nascimento") },
+                    visualTransformation = MaskVisualTransformation(date_mask)
                 )
 
                 OutlinedTextField(
@@ -295,4 +312,22 @@ fun onClickButtonUpdateUser(id: String, userModel: UserModel, callback: (UserMod
 fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
     val call = ApiClient.apiService.deleteUserById(id)
     apiCall(call, callback)
+}
+
+
+fun applyMask(input: String): String {
+    val mask = "###.###.###-##"
+    val cleanInput = input.replace("[^0-9]".toRegex(), "")
+    val maskedInput = StringBuilder()
+    var inputIndex = 0
+    for (i in mask.indices) {
+        if (inputIndex >= cleanInput.length) break
+        if (mask[i] == '#') {
+            maskedInput.append(cleanInput[inputIndex])
+            inputIndex++
+        } else {
+            maskedInput.append(mask[i])
+        }
+    }
+    return maskedInput.toString()
 }
