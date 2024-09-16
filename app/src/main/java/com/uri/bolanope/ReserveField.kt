@@ -171,6 +171,17 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
             ) {
                 Text("Alugar")
             }
+
+            Button(
+                onClick = {
+                    navController.navigate("fieldHistory/${fieldId}")
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text("Histórico")
+            }
+
             if (showDialog) {
                 ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
             }

@@ -77,6 +77,15 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")
                             Field(navController, id)
                         }
+                        composable(
+                            route = "fieldHistory/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            FieldHistory(navController, id)
+                        }
                         composable("homeAdmin") {
                             HomeAdmin(navController)
                         }

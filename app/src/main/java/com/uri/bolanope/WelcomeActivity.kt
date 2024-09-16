@@ -27,10 +27,10 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 @Composable
 fun Welcome(navController: NavHostController) {
     val context = LocalContext.current
-//    val userId = SharedPreferencesManager.getUserId(context)
-//    if (!userId.isNullOrEmpty()) {
-//        navController.navigate("home")
-//    } else {
+    val userId = SharedPreferencesManager.getUserId(context)
+    if (!userId.isNullOrEmpty()) {
+        navController.navigate("home")
+    } else {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -68,5 +68,5 @@ fun Welcome(navController: NavHostController) {
                 )
             }
         }
-//    }
+    }
 }
