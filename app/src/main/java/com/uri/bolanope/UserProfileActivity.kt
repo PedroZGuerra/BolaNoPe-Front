@@ -63,6 +63,9 @@ fun UserProfile(navController: NavHostController, userId: String?) {
     val date_mask = "##/##/####"
     val date_len = 8
 
+    val cep_mask = "#####-###"
+    val cep_len = 8
+
     LaunchedEffect(userId) {
         if (activityMode == "UPDATE" && userId != null) {
             getUserById(userId) { user ->
@@ -145,13 +148,14 @@ fun UserProfile(navController: NavHostController, userId: String?) {
 
                 OutlinedTextField(
                     value = cep,
-                    onValueChange = { input ->
-                        if (input.length <= 8) {
-                            cep = input
+                    onValueChange = { it ->
+                        if (it.length <= cep_len) {
+                            cep = it.filter { it.isDigit() }
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("CEP") }
+                    label = { Text("CEP") },
+                    visualTransformation = MaskVisualTransformation(cep_mask)
                 )
 
                 if (activityMode == "CREATE") {
