@@ -164,22 +164,25 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             var showDialog by remember { mutableStateOf(false) }
 
-            Button(
-                onClick = {showDialog = true},
+            Row(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text("Alugar")
-            }
+                Button(
+                    onClick = {
+                        navController.navigate("fieldHistory/${fieldId}")
+                    },
+                ) {
+                    Text("Histórico")
+                }
 
-            Button(
-                onClick = {
-                    navController.navigate("fieldHistory/${fieldId}")
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Text("Histórico")
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Button(
+                    onClick = {showDialog = true},
+                ) {
+                    Text("Alugar")
+                }
             }
 
             if (showDialog) {
