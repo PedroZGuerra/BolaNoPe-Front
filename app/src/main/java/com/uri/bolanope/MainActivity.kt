@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                         composable(
                             "reserveField/{id}",
                             arguments = listOf(
-                                navArgument("id") { type = NavType.StringType }
+                                navArgument("foasdifjasdfiojasdiojsdaiofj") { type = NavType.StringType }
                             )
 
                         ) { backStackEntry ->
