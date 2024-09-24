@@ -27,10 +27,14 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 @Composable
 fun Welcome(navController: NavHostController) {
     val context = LocalContext.current
-//    val userId = SharedPreferencesManager.getUserId(context)
-//    if (!userId.isNullOrEmpty()) {
-//        navController.navigate("home")
-//    } else {
+    val userId = SharedPreferencesManager.getUserId(context)
+
+    // agora so precisa mudar essa var pra skippar a tela de welcome
+    val skipLogin = true
+
+    if (!userId.isNullOrEmpty() && skipLogin) {
+        navController.navigate("home")
+    } else {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -68,5 +72,5 @@ fun Welcome(navController: NavHostController) {
                 )
             }
         }
-//    }
+    }
 }

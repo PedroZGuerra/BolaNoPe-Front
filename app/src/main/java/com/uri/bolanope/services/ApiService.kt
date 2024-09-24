@@ -44,6 +44,9 @@ interface ApiService {
     @GET("field/")
     fun getAllFields(): Call<List<FieldModel>>
 
+    @GET("reserve/field/{id}")
+    fun getFieldHistory(@Path("id") id: String): Call<List<ReserveModel>>
+
     @DELETE("field/{id}")
     fun deleteField(
         @Path("id") id: String,
