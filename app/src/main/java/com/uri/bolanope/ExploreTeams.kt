@@ -48,7 +48,7 @@ fun ExploreTeams(navController: NavHostController) {
     }
 
     Scaffold(
-        topBar = { TopBar("Quadras") },
+        topBar = { TopBar("Times") },
         content = { paddingValues ->
             teams.value?.let { teamList ->
                 LazyColumn(
