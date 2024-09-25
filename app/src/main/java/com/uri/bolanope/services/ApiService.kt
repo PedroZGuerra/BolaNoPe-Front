@@ -83,6 +83,9 @@ interface ApiService {
         @Header("Authorization") authHeader: String
     ): Call<FieldModel>
 
+    @GET("team/{id}")
+    fun getTeamById(@Path("id") id: String): Call<TeamModel?>
+
     @GET("team/")
     fun getAllTeams(): Call<List<TeamModel>?>
 }

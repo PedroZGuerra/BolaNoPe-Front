@@ -93,6 +93,16 @@ class MainActivity : ComponentActivity() {
                         composable("exploreTeams") {
                             ExploreTeams(navController)
                         }
+
+                        composable(
+                            route = "team/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            Team(navController, id)
+                        }
                     }
                 }
             }
