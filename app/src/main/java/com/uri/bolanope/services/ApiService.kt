@@ -4,6 +4,7 @@ import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
 import okhttp3.MultipartBody
@@ -82,4 +83,6 @@ interface ApiService {
         @Header("Authorization") authHeader: String
     ): Call<FieldModel>
 
+    @GET("team/")
+    fun getAllTeams(): Call<List<TeamModel>?>
 }

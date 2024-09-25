@@ -127,6 +127,9 @@ fun HomePage(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth()
             ){
                 Card(
+                    onClick = {
+                        navController.navigate("exploreTeams")
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp)

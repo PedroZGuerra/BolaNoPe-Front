@@ -89,6 +89,10 @@ class MainActivity : ComponentActivity() {
                         composable("homeAdmin") {
                             HomeAdmin(navController)
                         }
+
+                        composable("exploreTeams") {
+                            ExploreTeams(navController)
+                        }
                     }
                 }
             }
