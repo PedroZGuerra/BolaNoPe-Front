@@ -21,6 +21,9 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
+    @GET("user/")
+    fun getAllUsers(): Call<List<UserModel>>
+
     @GET("user/{id}")
     fun getUserById(@Path("id") id: String): Call<UserModel>
 
@@ -88,4 +91,10 @@ interface ApiService {
 
     @GET("team/")
     fun getAllTeams(): Call<List<TeamModel>?>
+
+    @POST("team/")
+    fun createTeam(
+        @Body body: TeamModel,
+        @Header("Authorization") token: String
+    ): Call<TeamModel?>
 }

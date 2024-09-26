@@ -103,6 +103,10 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")
                             Team(navController, id)
                         }
+
+                        composable("createTeam") {
+                            CreateTeam(navController)
+                        }
                     }
                 }
             }

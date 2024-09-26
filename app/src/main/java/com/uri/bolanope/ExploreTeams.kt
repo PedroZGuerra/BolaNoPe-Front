@@ -62,8 +62,7 @@ fun ExploreTeams(navController: NavHostController) {
                 modifier = Modifier
                     .padding(vertical = 16.dp),
                 onClick = {
-//                    navController.navigate("team/${team._id}")
-                    Toast.makeText(context, "Criar coiso", Toast.LENGTH_LONG).show()
+                    navController.navigate("createTeam")
             },
                 containerColor = Green80,
                 shape = CircleShape
