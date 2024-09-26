@@ -33,7 +33,8 @@ fun TopBar(text: String) {
             ) {
                 Text(
                     text,
-                    color = Color.White,
+//                    color = Color.White,
+                    color = Color.Black,
                 )
             }
         },
@@ -44,11 +45,13 @@ fun TopBar(text: String) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.White
+                    tint = Color.Black
                 )
             }
         },
-        backgroundColor = Color(0xFF77CC5C),
+//        backgroundColor = Color(0xFF77CC5C),
+        backgroundColor = Color.White,
+        elevation = 0.dp,
         modifier = Modifier.statusBarsPadding()
     )
 }
