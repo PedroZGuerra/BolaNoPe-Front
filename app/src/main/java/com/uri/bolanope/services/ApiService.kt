@@ -4,6 +4,7 @@ import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.UserModel
 import okhttp3.MultipartBody
@@ -20,6 +21,9 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
+    @GET("user/")
+    fun getAllUsers(): Call<List<UserModel>>
+
     @GET("user/{id}")
     fun getUserById(@Path("id") id: String): Call<UserModel>
 
@@ -82,4 +86,15 @@ interface ApiService {
         @Header("Authorization") authHeader: String
     ): Call<FieldModel>
 
+    @GET("team/{id}")
+    fun getTeamById(@Path("id") id: String): Call<TeamModel?>
+
+    @GET("team/")
+    fun getAllTeams(): Call<List<TeamModel>?>
+
+    @POST("team/")
+    fun createTeam(
+        @Body body: TeamModel,
+        @Header("Authorization") token: String
+    ): Call<TeamModel?>
 }

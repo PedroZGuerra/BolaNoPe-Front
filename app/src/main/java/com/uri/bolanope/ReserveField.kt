@@ -348,6 +348,7 @@ fun timeToFloat(time: String): Float {
 }
 
 fun priceToFloat(price: String): Float {
+    Log.d("shoowwww", "chegou aq")
     return price.replace(",", ".").toFloatOrNull() ?: 0.0F
 }
 
