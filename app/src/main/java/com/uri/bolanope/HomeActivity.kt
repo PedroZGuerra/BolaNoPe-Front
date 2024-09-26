@@ -3,7 +3,9 @@ package com.uri.bolanope
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -90,6 +92,12 @@ fun HomePage(navController: NavHostController) {
                     .padding(top = 16.dp, start = 8.dp)
                     .align(Alignment.Start)
             )
+            if(fields.value == null){
+                Box(
+                    Modifier
+                        .height(200.dp)
+                )
+            }
             fields.value?.let { fieldList ->
                 HorizontalPager(
                     state = pagerState,
