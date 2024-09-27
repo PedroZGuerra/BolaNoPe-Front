@@ -5,11 +5,13 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -92,22 +94,28 @@ fun CreateTeam(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            for (i in 0 until 5) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(onClick = { showUserPopup = Pair(true, i) }) {
-                        if (selectedMembers[i]?.name != null) {
-                            Text(selectedMembers[i]?.name!!)
-                        } else {
-                            Icon(Icons.Filled.Add, contentDescription = "Adicionar Usuário", tint = Color.White)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp)
+            ) {
+                items(5) { i ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = { showUserPopup = Pair(true, i) }) {
+                            if (selectedMembers[i]?.name != null) {
+                                Text(selectedMembers[i]?.name!!)
+                            } else {
+                                Icon(Icons.Filled.Add, contentDescription = "Adicionar Usuário", tint = Color.White)
+                            }
                         }
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             if (showUserPopup.first) {
@@ -133,7 +141,10 @@ fun CreateTeam(navController: NavHostController) {
                 TextButton(
                     onClick = {
                         navController.navigate("exploreTeams")
-                    }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.Red
+                    )
                 ) {
                     Text("Cancelar")
                 }
@@ -210,12 +221,17 @@ fun UserSelectionPopup(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Done")
+                Text("Concluído")
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancel")
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color.Red
+                )
+            ) {
+                Text("Cancelar")
             }
         }
     )

@@ -97,4 +97,22 @@ interface ApiService {
         @Body body: TeamModel,
         @Header("Authorization") token: String
     ): Call<TeamModel?>
+
+    @DELETE("team/{id}")
+    fun deleteTeam(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<Void>
+
+    @PUT("team/{id}")
+    fun updateTeam(
+        @Path("id")
+        id: String,
+        @Body
+        body: TeamModel,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<TeamModel>
 }

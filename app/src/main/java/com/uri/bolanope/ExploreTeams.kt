@@ -104,9 +104,9 @@ fun TeamCard(team: TeamModel, navController: NavHostController) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = team.name, style = MaterialTheme.typography.titleLarge)
+            Text(text = team.name!!, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(5.dp))
-            Text(text = team.description, style = MaterialTheme.typography.bodyMedium)
+            Text(text = team.description!!, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
