@@ -12,18 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
+import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
 fun Team(navController: NavHostController, teamId: String?) {
     val context = LocalContext.current
     val team = remember { mutableStateOf<TeamModel?>(null) }
-    val membersNames = remember { mutableStateListOf<String>() }
+    val membersNames = remember { mutableStateListOf<Pair<String, Boolean>>() }
     val user_id = SharedPreferencesManager.getUserId(context)
     var leader_name by remember { mutableStateOf("") }
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -33,16 +35,22 @@ fun Team(navController: NavHostController, teamId: String?) {
             getTeamById(teamId) { result ->
                 if (result != null) {
                     team.value = result
+                    val addedLeader = result.leader_id
+
+                    getUserById(addedLeader!!) { user ->
+                        user?.let {
+                            membersNames.add(0, Pair(it.name, true))
+                            leader_name = it.name
+                        }
+                    }
+
                     result.members_id!!.forEach { memberId ->
                         getUserById(memberId) { user ->
                             user?.let {
-                                membersNames.add(it.name)
+                                if (it._id != addedLeader) {
+                                    membersNames.add(Pair(it.name, false))
+                                }
                             }
-                        }
-                    }
-                    getUserById(team.value?.leader_id!!) { user ->
-                        user?.let {
-                            leader_name = it.name
                         }
                     }
                 } else {
@@ -69,23 +77,22 @@ fun Team(navController: NavHostController, teamId: String?) {
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column(
-                            modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = team.value?.description ?: "",
-                                style = MaterialTheme.typography.bodyMedium
+                                text = "Descrição:",
+                                style = MaterialTheme.typography.titleMedium
                             )
                             Text(
-                                text = "Líder: $leader_name",
-                                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+                                text = team.value?.description ?: "",
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(text = "Members:", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Membros:", style = MaterialTheme.typography.titleMedium)
 
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -93,13 +100,17 @@ fun Team(navController: NavHostController, teamId: String?) {
                         contentPadding = PaddingValues(horizontal = 8.dp)
                     ) {
                         items(membersNames.size) { index ->
-                            val memberName = membersNames[index]
+                            val (memberName, isLeader) = membersNames[index]
+                            val cardColor = if (isLeader) Green80 else MaterialTheme.colorScheme.surfaceVariant
+                            val textColor = if (isLeader) Color.White else MaterialTheme.colorScheme.onSurface
                             Card(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .width(120.dp)
                                     .height(60.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                colors = CardDefaults.cardColors(
+                                    containerColor = cardColor
+                                )
                             ) {
                                 Box(
                                     contentAlignment = Alignment.Center,
@@ -108,7 +119,7 @@ fun Team(navController: NavHostController, teamId: String?) {
                                     Text(
                                         text = memberName,
                                         style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = textColor
                                     )
                                 }
                             }
@@ -122,7 +133,6 @@ fun Team(navController: NavHostController, teamId: String?) {
                         ) {
                             Button(onClick = {
                                 navController.navigate("editTeam/$teamId")
-
                             }) {
                                 Text("Editar Time")
                             }
@@ -130,7 +140,6 @@ fun Team(navController: NavHostController, teamId: String?) {
                             Button(
                                 onClick = {
                                     showDeleteDialog.value = true
-
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                             ) {
@@ -146,6 +155,7 @@ fun Team(navController: NavHostController, teamId: String?) {
             }
         }
     )
+
     if (showDeleteDialog.value) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog.value = false },
@@ -185,7 +195,7 @@ fun getTeamById(team_id: String, callback: (TeamModel?) -> Unit) {
     apiCall(call, callback)
 }
 
-fun deleteTeam(id: String, authHeader: String, callback: (Void?) -> Unit){
+fun deleteTeam(id: String, authHeader: String, callback: (Void?) -> Unit) {
     val call = ApiClient.apiService.deleteTeam(id, "Bearer $authHeader")
     apiCall(call, callback)
 }
