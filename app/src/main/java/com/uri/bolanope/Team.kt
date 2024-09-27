@@ -19,7 +19,6 @@ import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Team(navController: NavHostController, teamId: String?) {
     val context = LocalContext.current
@@ -27,13 +26,14 @@ fun Team(navController: NavHostController, teamId: String?) {
     val membersNames = remember { mutableStateListOf<String>() }
     val user_id = SharedPreferencesManager.getUserId(context)
     var leader_name by remember { mutableStateOf("") }
+    val showDeleteDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
             getTeamById(teamId) { result ->
                 if (result != null) {
                     team.value = result
-                    result.members_id.forEach { memberId ->
+                    result.members_id!!.forEach { memberId ->
                         getUserById(memberId) { user ->
                             user?.let {
                                 membersNames.add(it.name)
@@ -53,7 +53,7 @@ fun Team(navController: NavHostController, teamId: String?) {
     }
 
     Scaffold(
-        topBar = { team.value?.let { TopBar(it.name) } },
+        topBar = { team.value?.let { TopBar(it.name!!) } },
         content = { paddingValues ->
             if (team.value != null) {
                 Column(
@@ -118,14 +118,20 @@ fun Team(navController: NavHostController, teamId: String?) {
                     if (user_id == team.value?.leader_id) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Button(onClick = { /* Handle edit */ }) {
+                            Button(onClick = {
+                                navController.navigate("editTeam/$teamId")
+
+                            }) {
                                 Text("Editar Time")
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
-                                onClick = { /* Handle delete */ },
+                                onClick = {
+                                    showDeleteDialog.value = true
+
+                                },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                             ) {
                                 Text("Deletar Time")
@@ -140,9 +146,46 @@ fun Team(navController: NavHostController, teamId: String?) {
             }
         }
     )
+    if (showDeleteDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog.value = false },
+            title = { Text("Confirmar Exclusão") },
+            text = { Text("Você tem certeza que deseja deletar este time?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog.value = false
+                        team.value?.let {
+                            val authHeader = SharedPreferencesManager.getToken(context)
+                            deleteTeam(it._id!!, authHeader!!) { result ->
+                                Toast.makeText(context, "Time deletado com sucesso.", Toast.LENGTH_LONG).show()
+                                navController.popBackStack()
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Deletar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 fun getTeamById(team_id: String, callback: (TeamModel?) -> Unit) {
     val call = ApiClient.apiService.getTeamById(team_id)
+    apiCall(call, callback)
+}
+
+fun deleteTeam(id: String, authHeader: String, callback: (Void?) -> Unit){
+    val call = ApiClient.apiService.deleteTeam(id, "Bearer $authHeader")
     apiCall(call, callback)
 }
