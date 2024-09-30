@@ -117,6 +117,10 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")
                             EditTeam(navController, id)
                         }
+
+                        composable("exploreTourneys") {
+                            ExploreTourneys(navController)
+                        }
                     }
                 }
             }
