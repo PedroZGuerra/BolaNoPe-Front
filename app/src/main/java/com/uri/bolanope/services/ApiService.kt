@@ -119,4 +119,7 @@ interface ApiService {
 
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
+
+    @GET("tourney/{id}")
+    fun getTourneyById(@Path("id") id: String): Call<TourneyModel>
 }

@@ -121,6 +121,16 @@ class MainActivity : ComponentActivity() {
                         composable("exploreTourneys") {
                             ExploreTourneys(navController)
                         }
+
+                        composable(
+                            route = "tourney/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            Tourney(id!!, navController)
+                        }
                     }
                 }
             }

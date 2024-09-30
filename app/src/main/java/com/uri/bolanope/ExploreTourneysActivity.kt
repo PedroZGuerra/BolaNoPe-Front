@@ -52,7 +52,7 @@ fun ExploreTourneys(navController: NavHostController){
             if (result != null) {
                 tourneys.value = result
             } else {
-                Toast.makeText(context, "Falha ao carregar os campos.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Falha ao carregar os torneios.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -66,14 +66,14 @@ fun ExploreTourneys(navController: NavHostController){
                     modifier = Modifier
                         .padding(vertical = 16.dp),
                     onClick = {
-                        // n funciona
+                        // n funciona ainda
                         navController.navigate("createTourney")
                     },
                     containerColor = Green80,
                     shape = CircleShape
 
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team", tint = Color.White)
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Tourney", tint = Color.White)
                 }
             }
         },
@@ -106,14 +106,14 @@ fun TourneyCard(tourney: TourneyModel, navController: NavHostController){
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp),
         onClick = {
-            // todo
+            navController.navigate("tourney/${tourney._id}")
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = tourney.name,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
@@ -122,20 +122,10 @@ fun TourneyCard(tourney: TourneyModel, navController: NavHostController){
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "Prize: ${tourney.prize}",
+                text = "Premio: ${tourney.prize}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Teams: ${tourney.id_teams}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
         }
     }
 }
