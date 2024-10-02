@@ -128,4 +128,14 @@ interface ApiService {
         @Body body: TourneyModel,
         @Header("Authorization") token: String
     ): Call<TourneyModel?>
+
+    @PUT("tourney/{id}")
+    fun updateTourney(
+        @Path("id")
+        id: String,
+        @Body
+        body: TourneyModel,
+        @Header("Authorization")
+        token: String
+    ): Call<TourneyModel?>
 }
