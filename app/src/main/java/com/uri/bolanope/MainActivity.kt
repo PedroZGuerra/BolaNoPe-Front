@@ -122,6 +122,10 @@ class MainActivity : ComponentActivity() {
                             ExploreTourneys(navController)
                         }
 
+                        composable("createTourney") {
+                            CreateTourney(navController)
+                        }
+
                         composable(
                             route = "tourney/{id}",
                             arguments = listOf(

@@ -66,7 +66,6 @@ fun ExploreTourneys(navController: NavHostController){
                     modifier = Modifier
                         .padding(vertical = 16.dp),
                     onClick = {
-                        // n funciona ainda
                         navController.navigate("createTourney")
                     },
                     containerColor = Green80,

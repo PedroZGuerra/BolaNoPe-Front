@@ -89,6 +89,20 @@ fun HomeAdmin(navController: NavHostController) {
                 )
             }
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text(
+                    text = "Torneios",
+                    modifier = Modifier
+                        .clickable {
+                            navController.navigate("exploreTourneys")
+                        }
+                )
+            }
+
             Divider(
                 color = Color.Black,
                 thickness = 2.dp,
