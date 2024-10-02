@@ -158,6 +158,9 @@ fun HomePage(navController: NavHostController) {
                     }
                 }
                 Card(
+                    onClick = {
+                        navController.navigate("exploreTourneys")
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp)

@@ -160,11 +160,9 @@ fun CreateTeam(navController: NavHostController) {
                         )
                         createTeam(teamModel, userToken!!) { response ->
                             if (response != null) {
-                                Log.d("log fodinhaaaaa", "Team created: ${response}")
                                 Toast.makeText(context, "Time Criado com sucesso", Toast.LENGTH_LONG).show()
                                 navController.navigate("home")
                             } else {
-                                Log.d("log fodinhaaaaa", "Failed to create team: ${response}")
                                 Toast.makeText(context, "Falha ao criar reserva", Toast.LENGTH_LONG).show()
                             }
                         }
@@ -238,7 +236,6 @@ fun UserSelectionPopup(
 }
 
 fun createTeam(teamModel: TeamModel, userToken: String, callback: (TeamModel?) -> Unit) {
-    Log.d("log fodinhaaaaa", "${teamModel}, $userToken")
     val call = ApiClient.apiService.createTeam(teamModel, "Bearer $userToken")
     apiCall(call, callback)
 }

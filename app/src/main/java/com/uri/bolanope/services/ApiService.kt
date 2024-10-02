@@ -6,6 +6,7 @@ import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
+import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -115,4 +116,26 @@ interface ApiService {
         @Header("Authorization")
         authHeader: String
     ): Call<TeamModel>
+
+    @GET("tourney/")
+    fun getAllTourneys(): Call<List<TourneyModel>>
+
+    @GET("tourney/{id}")
+    fun getTourneyById(@Path("id") id: String): Call<TourneyModel>
+
+    @POST("tourney/")
+    fun createTourney(
+        @Body body: TourneyModel,
+        @Header("Authorization") token: String
+    ): Call<TourneyModel?>
+
+    @PUT("tourney/{id}")
+    fun updateTourney(
+        @Path("id")
+        id: String,
+        @Body
+        body: TourneyModel,
+        @Header("Authorization")
+        token: String
+    ): Call<TourneyModel?>
 }

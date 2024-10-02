@@ -28,12 +28,18 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 fun Welcome(navController: NavHostController) {
     val context = LocalContext.current
     val userId = SharedPreferencesManager.getUserId(context)
+    val userRole = SharedPreferencesManager.getUserRole(context)
 
     // agora so precisa mudar essa var pra skippar a tela de welcome
     val skipLogin = true
 
     if (!userId.isNullOrEmpty() && skipLogin) {
-        navController.navigate("home")
+        if(userRole == "admin") {
+            navController.navigate("homeAdmin")
+        }else {
+
+            navController.navigate("home")
+        }
     } else {
         Box(
             modifier = Modifier
