@@ -1,6 +1,8 @@
 package com.uri.bolanope
 
+import android.app.DatePickerDialog
 import android.util.Log
+import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +47,7 @@ import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
+import java.util.Calendar
 
 @Composable
 fun CreateTourney(navController: NavHostController) {
@@ -58,6 +61,30 @@ fun CreateTourney(navController: NavHostController) {
     var selectedTeams by remember { mutableStateOf<List<TeamModel?>>(List(5) { null }) }
     var showTeamPopup by remember { mutableStateOf<Pair<Boolean, Int>>(Pair(false, -1)) }
     var searchQuery by remember { mutableStateOf("") }
+    var dateFrom by remember { mutableStateOf("") }
+    var dateUntil by remember { mutableStateOf("") }
+    val calendar = Calendar.getInstance()
+
+    val today = Calendar.getInstance().timeInMillis
+
+    val datePickerDialogFrom = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            dateFrom = "$dayOfMonth/${month + 1}/$year"
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+    ).apply {
+        datePicker.minDate = today
+    }
+
+    val datePickerDialogUntil = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            dateUntil = "$dayOfMonth/${month + 1}/$year"
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+    ).apply {
+        datePicker.minDate = today
+    }
+
 
     LaunchedEffect(Unit) {
     }
@@ -101,6 +128,18 @@ fun CreateTourney(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Button(onClick = { datePickerDialogFrom.show() }) {
+                Text(text = if (dateFrom.isEmpty()) "Selecione a Data de Inicio" else dateFrom)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = { datePickerDialogUntil.show() }) {
+                Text(text = if (dateUntil.isEmpty()) "Selecione a Data Final" else dateUntil)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row {
                 TextButton(
                     onClick = {
@@ -120,7 +159,9 @@ fun CreateTourney(navController: NavHostController) {
                             name = tourneyName,
                             description = description,
                             prize = prize,
-                            id_teams = selectedTeams.mapNotNull { it?._id }
+                            id_teams = selectedTeams.mapNotNull { it?._id },
+                            date_from = dateFrom,
+                            date_until = dateUntil
                         )
                         createTourney(tourneyModel, userToken!!) { response ->
                             if (response != null) {

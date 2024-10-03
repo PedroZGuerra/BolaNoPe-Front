@@ -6,4 +6,6 @@ data class TourneyModel(
         var description: String,
         var prize: String,
         val id_teams: List<String>,
+        var date_from: String,
+        var date_until: String,
 )
