@@ -3,6 +3,7 @@ package com.uri.bolanope.services
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
@@ -116,6 +117,14 @@ interface ApiService {
         @Header("Authorization")
         authHeader: String
     ): Call<TeamModel>
+
+    @POST("request/")
+    fun createTeamRequest(
+        @Body
+        body: com.uri.bolanope.model.RequestBody,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<RequestModel>
 
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
