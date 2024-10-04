@@ -131,6 +131,7 @@ fun Team(navController: NavHostController, teamId: String?) {
                         Button(
                             onClick = {
                                 Log.d("TAG", "Team: entrar no time mt fera")
+                                Toast.makeText(context, "Pedido enviado com sucesso!", Toast.LENGTH_LONG).show()
                             },
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         ) {
