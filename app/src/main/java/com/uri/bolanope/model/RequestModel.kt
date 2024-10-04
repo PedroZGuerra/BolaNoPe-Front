@@ -12,3 +12,7 @@ data class RequestModel(
 data class RequestBody(
     val teamId: String
 )
+
+data class AcceptRequestBody(
+    val action: String
+)

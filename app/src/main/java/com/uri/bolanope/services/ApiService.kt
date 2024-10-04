@@ -1,5 +1,6 @@
 package com.uri.bolanope.services
 
+import com.uri.bolanope.model.AcceptRequestBody
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
@@ -122,6 +123,16 @@ interface ApiService {
     fun createTeamRequest(
         @Body
         body: com.uri.bolanope.model.RequestBody,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<RequestModel>
+
+    @POST("request/{id}")
+    fun acceptTeamRequest(
+        @Path("id")
+        id: String,
+        @Body
+        action: AcceptRequestBody,
         @Header("Authorization")
         authHeader: String
     ): Call<RequestModel>

@@ -163,7 +163,7 @@ fun CreateTeam(navController: NavHostController) {
                                 Toast.makeText(context, "Time Criado com sucesso", Toast.LENGTH_LONG).show()
                                 navController.navigate("home")
                             } else {
-                                Toast.makeText(context, "Falha ao criar reserva", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Falha ao criar time", Toast.LENGTH_LONG).show()
                             }
                         }
                     }

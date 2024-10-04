@@ -1,5 +1,6 @@
 package com.uri.bolanope
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.model.AcceptRequestBody
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
@@ -67,20 +69,6 @@ fun TeamRequests(navController: NavHostController, teamId: String) {
 
     Scaffold(
         topBar = { TopBar("Pedidos") },
-        floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier
-                    .padding(vertical = 16.dp),
-                onClick = {
-                    navController.navigate("createTeam")
-                },
-                containerColor = Green80,
-                shape = CircleShape
-
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team", tint = Color.White)
-            }
-        },
         content = { paddingValues ->
             requests.value?.let { teamList ->
                 LazyColumn(
@@ -90,7 +78,7 @@ fun TeamRequests(navController: NavHostController, teamId: String) {
                 ) {
                     items(teamList) { request ->
                         if (userId != null) {
-                            RequestCard(request, userId)
+                            RequestCard(request, context, token!!)
                         }
                     }
                 }
@@ -104,7 +92,7 @@ fun TeamRequests(navController: NavHostController, teamId: String) {
 }
 
 @Composable
-fun RequestCard(request: RequestModel, userId: String) {
+fun RequestCard(request: RequestModel, context: Context, token: String) {
     val user = remember { mutableStateOf<UserModel?>(null) }
     getUserById(request.user_id!!){ result ->
         if (result != null){
@@ -135,31 +123,50 @@ fun RequestCard(request: RequestModel, userId: String) {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(
-                    colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = Green80,
-                    ),
-                    onClick = {
-                        // todo
-                    }
-                ) {
-                    Text(
-                        color = Color.White,
-                        text = "Aceitar"
+                if(request.status == "pending") {
+                    Button(
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = Green80,
+                        ),
+                        onClick = {
+                            acceptTeamRequest(request._id!!, token, "approve") { result ->
+                                if (result != null) {
+                                    Toast.makeText(context, "Pedido aceito com sucesso!", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Erro ao aceitar pedido.", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    ) {
+                        Text(
+                            color = Color.White,
+                            text = "Aceitar"
                         )
-                }
-                Button(
-                    colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = Color.Red,
-                    ),
-                    onClick = {
-                        // todo
                     }
-                ) {
-                    Text(
-                        color = Color.White,
-                        text = "Recusar"
-                    )
+                    Button(
+                        colors = ButtonDefaults.textButtonColors(
+                            backgroundColor = Color.Red,
+                        ),
+                        onClick = {
+                            acceptTeamRequest(request._id!!, token, "") { result ->
+                                if (result != null) {
+                                    Toast.makeText(context, "Pedido recusado.", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Erro ao recusar pedido.", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    ) {
+                        Text(
+                            color = Color.White,
+                            text = "Recusar"
+                        )
+                    }
+
+                } else if (request.status == "approved") {
+                    Text("Aprovado!")
+                } else {
+                    Text("Recusado!")
                 }
             }
         }
@@ -167,5 +174,13 @@ fun RequestCard(request: RequestModel, userId: String) {
 }
 fun getTeamRequests(teamId: String, authHeader: String, callback: (List<RequestModel>?) -> Unit) {
     val call = ApiClient.apiService.getTeamRequests(teamId, "Bearer: $authHeader")
+    apiCall(call, callback)
+}
+
+fun acceptTeamRequest(requestId: String, authHeader: String, action: String, callback: (RequestModel?) -> Unit){
+    val actionBody = AcceptRequestBody(
+        action
+    )
+    val call = ApiClient.apiService.acceptTeamRequest(requestId, actionBody, "Bearer: $authHeader")
     apiCall(call, callback)
 }
