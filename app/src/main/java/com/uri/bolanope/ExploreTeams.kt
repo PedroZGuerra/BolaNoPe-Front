@@ -39,11 +39,13 @@ import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
+import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
 fun ExploreTeams(navController: NavHostController) {
     val teams = remember { mutableStateOf<List<TeamModel>?>(null) }
     val context = LocalContext.current
+    val userId = SharedPreferencesManager.getUserId(context)
 
     LaunchedEffect(Unit) {
         getAllTeams { result ->
@@ -79,7 +81,9 @@ fun ExploreTeams(navController: NavHostController) {
                         .padding(paddingValues),
                 ) {
                     items(teamList) { team ->
-                        TeamCard(team, navController)
+                        if (userId != null) {
+                            TeamCard(team, navController, userId )
+                        }
                     }
                 }
             } ?: run {
@@ -92,7 +96,7 @@ fun ExploreTeams(navController: NavHostController) {
 }
 
 @Composable
-fun TeamCard(team: TeamModel, navController: NavHostController) {
+fun TeamCard(team: TeamModel, navController: NavHostController, userId: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,6 +111,16 @@ fun TeamCard(team: TeamModel, navController: NavHostController) {
             Text(text = team.name!!, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(5.dp))
             Text(text = team.description!!, style = MaterialTheme.typography.bodyMedium)
+            if (userId !in team.members_id!!) {
+                val openSpots = 5 - team.members_id.size
+                if (openSpots > 0) {
+                    Text(
+                        text = "Esse time tem $openSpots vaga(s) aberta(s)!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFFFFA500)
+                    )
+                }
+            }
         }
     }
 }

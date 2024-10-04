@@ -1,18 +1,16 @@
 package com.uri.bolanope
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.model.TeamModel
@@ -29,6 +27,7 @@ fun Team(navController: NavHostController, teamId: String?) {
     val user_id = SharedPreferencesManager.getUserId(context)
     var leader_name by remember { mutableStateOf("") }
     val showDeleteDialog = remember { mutableStateOf(false) }
+    var isUserMember by remember { mutableStateOf(false) }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
@@ -53,6 +52,8 @@ fun Team(navController: NavHostController, teamId: String?) {
                             }
                         }
                     }
+
+                    isUserMember = result.members_id.contains(user_id)
                 } else {
                     Toast.makeText(context, "Falha ao carregar o time.", Toast.LENGTH_LONG).show()
                 }
@@ -123,6 +124,17 @@ fun Team(navController: NavHostController, teamId: String?) {
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    if (!isUserMember) {
+                        Button(
+                            onClick = {
+                                Log.d("TAG", "Team: entrar no time mt fera")
+                            },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text("Quero participar")
                         }
                     }
 
