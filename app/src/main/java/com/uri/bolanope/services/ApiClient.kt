@@ -35,6 +35,7 @@ inline fun <reified T> apiCall(
 ) {
     call.enqueue(object : Callback<T> {
         override fun onResponse(call: Call<T>, response: Response<T>) {
+            Log.d("Requisicao", "Código: ${response.code()}, response: $response")
             if (response.isSuccessful) {
                 val result = response.body()
                 callback(result)

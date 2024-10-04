@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.model.RequestBody
+import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
@@ -25,6 +27,7 @@ fun Team(navController: NavHostController, teamId: String?) {
     val team = remember { mutableStateOf<TeamModel?>(null) }
     val membersNames = remember { mutableStateListOf<Pair<String, Boolean>>() }
     val user_id = SharedPreferencesManager.getUserId(context)
+    val user_token = SharedPreferencesManager.getToken(context)
     var leader_name by remember { mutableStateOf("") }
     val showDeleteDialog = remember { mutableStateOf(false) }
     var isUserMember by remember { mutableStateOf(false) }
@@ -131,6 +134,14 @@ fun Team(navController: NavHostController, teamId: String?) {
                         Button(
                             onClick = {
                                 Log.d("TAG", "Team: entrar no time mt fera")
+                                createTeamRequest(teamId!!, user_token!!){ result ->
+                                    Log.d("TAG", "$teamId, $user_token")
+                                    if (result != null) {
+                                        Toast.makeText(context, "Pedido enviado com sucesso!", Toast.LENGTH_LONG).show()
+                                    }else {
+                                        Toast.makeText(context, "Erro ao enviar pedido", Toast.LENGTH_LONG).show()
+                                    }
+                                }
                             },
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         ) {
@@ -139,23 +150,33 @@ fun Team(navController: NavHostController, teamId: String?) {
                     }
 
                     if (user_id == team.value?.leader_id) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Button(onClick = {
-                                navController.navigate("editTeam/$teamId")
-                            }) {
-                                Text("Editar Time")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    showDeleteDialog.value = true
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                        Column{
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Text("Deletar Time")
+                                Button(onClick = {
+                                    navController.navigate("editTeam/$teamId")
+                                }) {
+                                    Text("Editar Time")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = {
+                                        showDeleteDialog.value = true
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                                ) {
+                                    Text("Deletar Time")
+                                }
+                            }
+                            Button(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                onClick = {
+                                    navController.navigate("teamRequests/${team.value!!._id}")
+                                }
+                            ){
+                                Text("Visualizar pedidos de entrada")
                             }
                         }
                     }
@@ -209,5 +230,14 @@ fun getTeamById(team_id: String, callback: (TeamModel?) -> Unit) {
 
 fun deleteTeam(id: String, authHeader: String, callback: (Void?) -> Unit) {
     val call = ApiClient.apiService.deleteTeam(id, "Bearer $authHeader")
+    apiCall(call, callback)
+}
+
+fun createTeamRequest(teamId: String, authHeader: String, callback: (RequestModel?) -> Unit){
+    val requestBody = RequestBody(
+        teamId
+    )
+
+    val call = ApiClient.apiService.createTeamRequest(requestBody, "Bearer $authHeader")
     apiCall(call, callback)
 }
