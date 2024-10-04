@@ -126,6 +126,14 @@ interface ApiService {
         authHeader: String
     ): Call<RequestModel>
 
+    @GET("request/team/{id}")
+    fun getTeamRequests(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<List<RequestModel>>
+
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
 

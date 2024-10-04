@@ -169,6 +169,13 @@ fun Team(navController: NavHostController, teamId: String?) {
                                 Text("Deletar Time")
                             }
                         }
+                        Button(
+                            onClick = {
+                                navController.navigate("teamRequests/${team.value!!._id}")
+                            }
+                        ){
+                            Text("Visualizar pedidos de entrada")
+                        }
                     }
                 }
             } else {

@@ -137,6 +137,16 @@ class MainActivity : ComponentActivity() {
                             EditTeam(navController, id)
                         }
 
+                        composable(
+                            route = "teamRequests/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            TeamRequests(navController, id!! )
+                        }
+
                         composable("exploreTourneys") {
                             ExploreTourneys(navController)
                         }
