@@ -150,31 +150,34 @@ fun Team(navController: NavHostController, teamId: String?) {
                     }
 
                     if (user_id == team.value?.leader_id) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Button(onClick = {
-                                navController.navigate("editTeam/$teamId")
-                            }) {
-                                Text("Editar Time")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    showDeleteDialog.value = true
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                        Column{
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Text("Deletar Time")
+                                Button(onClick = {
+                                    navController.navigate("editTeam/$teamId")
+                                }) {
+                                    Text("Editar Time")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = {
+                                        showDeleteDialog.value = true
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                                ) {
+                                    Text("Deletar Time")
+                                }
                             }
-                        }
-                        Button(
-                            onClick = {
-                                navController.navigate("teamRequests/${team.value!!._id}")
+                            Button(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                onClick = {
+                                    navController.navigate("teamRequests/${team.value!!._id}")
+                                }
+                            ){
+                                Text("Visualizar pedidos de entrada")
                             }
-                        ){
-                            Text("Visualizar pedidos de entrada")
                         }
                     }
                 }
