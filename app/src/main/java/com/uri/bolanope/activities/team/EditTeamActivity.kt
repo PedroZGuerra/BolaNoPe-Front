@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.team
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient

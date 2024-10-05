@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.user
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +16,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
+import com.uri.bolanope.R
+import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.services.ApiClient

@@ -1,9 +1,8 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.common
 
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,18 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,14 +36,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
+import com.uri.bolanope.R
+import com.uri.bolanope.activities.field.base64ToBitmap
+import com.uri.bolanope.activities.field.getAllFields
+import com.uri.bolanope.components.BottomNavigationBar
 import com.uri.bolanope.model.FieldModel
-import com.uri.bolanope.model.LoginModel
-import com.uri.bolanope.model.TokenModel
-import com.uri.bolanope.services.ApiClient
-import com.uri.bolanope.services.apiCall
-import com.uri.bolanope.utils.SharedPreferencesManager
-import okio.ByteString.Companion.decodeBase64
 
 @Composable
 fun HomePage(navController: NavHostController) {

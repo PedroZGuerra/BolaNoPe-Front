@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.components
 
 import android.content.Context
 

@@ -1,7 +1,5 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.user
 
-import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.utils.MaskVisualTransformation
+import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient

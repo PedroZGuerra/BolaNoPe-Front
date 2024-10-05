@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.utils
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping

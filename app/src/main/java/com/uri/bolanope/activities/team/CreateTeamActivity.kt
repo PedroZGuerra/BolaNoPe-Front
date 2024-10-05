@@ -1,6 +1,5 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.team
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,8 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.uri.bolanope.model.FieldModel
-import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient

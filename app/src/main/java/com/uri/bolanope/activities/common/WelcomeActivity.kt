@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.R
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable

@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.team
 
 import android.util.Log
 import android.widget.Toast
@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.model.RequestBody
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel

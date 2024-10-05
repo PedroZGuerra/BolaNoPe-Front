@@ -1,6 +1,5 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.field
 
-import android.app.Application.ActivityLifecycleCallbacks
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -25,7 +24,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.filled.AttachMoney
@@ -37,7 +35,6 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,17 +51,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.ReserveModel
-import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
-import com.uri.bolanope.ui.theme.BolaNoPeTheme
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
-import com.uri.bolanope.utils.decodeJWT
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.Locale
 
 @Composable

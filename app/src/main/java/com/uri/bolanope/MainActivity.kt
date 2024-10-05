@@ -9,17 +9,32 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.uri.bolanope.activities.common.HomeAdmin
+import com.uri.bolanope.activities.common.HomePage
+import com.uri.bolanope.activities.common.Welcome
+import com.uri.bolanope.activities.field.Field
+import com.uri.bolanope.activities.field.FieldHistory
+import com.uri.bolanope.activities.field.Fields
+import com.uri.bolanope.activities.field.ReserveField
+import com.uri.bolanope.activities.team.CreateTeam
+import com.uri.bolanope.activities.team.EditTeam
+import com.uri.bolanope.activities.team.ExploreTeams
+import com.uri.bolanope.activities.team.Team
+import com.uri.bolanope.activities.team.TeamRequests
+import com.uri.bolanope.activities.tourney.CreateTourney
+import com.uri.bolanope.activities.tourney.EditTourney
+import com.uri.bolanope.activities.tourney.ExploreTourneys
+import com.uri.bolanope.activities.tourney.Tourney
+import com.uri.bolanope.activities.user.Login
+import com.uri.bolanope.activities.user.UserProfile
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
-import com.uri.bolanope.utils.SharedPreferencesManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

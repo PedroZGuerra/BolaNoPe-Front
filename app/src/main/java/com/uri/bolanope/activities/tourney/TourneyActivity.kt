@@ -1,4 +1,4 @@
-package com.uri.bolanope
+package com.uri.bolanope.activities.tourney
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.activities.team.deleteTeam
+import com.uri.bolanope.activities.team.getTeamById
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
