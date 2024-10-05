@@ -113,9 +113,13 @@ fun onClickLogin(navController: NavHostController, context: Context, email: Stri
                 SharedPreferencesManager.saveToken(context, tokenModel.token)
 
                 if (role == "admin") {
-                    navController.navigate("homeAdmin")
+                    navController.navigate("homeAdmin") {
+                        popUpTo(navController.currentDestination?.id ?: 0) { inclusive = true }
+                    }
                 } else {
-                    navController.navigate("home")
+                    navController.navigate("home") {
+                        popUpTo(navController.currentDestination?.id ?: 0) { inclusive = true }
+                    }
                 }
             }
 

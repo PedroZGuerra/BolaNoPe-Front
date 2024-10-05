@@ -43,7 +43,9 @@ fun HomeAdmin(navController: NavHostController) {
                     SharedPreferencesManager.clearToken(context)
                     SharedPreferencesManager.clearUserId(context)
                     SharedPreferencesManager.clearUserRole(context)
-                    navController.navigate("welcome")
+                    navController.navigate("welcome") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    }
                 },
                 backgroundColor = Color(0xFF4CAF50),
                 contentColor = Color.White,

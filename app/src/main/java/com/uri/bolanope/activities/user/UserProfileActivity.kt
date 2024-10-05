@@ -190,12 +190,9 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                                     SharedPreferencesManager.saveUserRole(context, role)
                                     SharedPreferencesManager.saveToken(context, response.token)
 
-                                    if (role == "admin") {
-                                        navController.navigate("homeAdmin")
-                                    } else {
-                                        navController.navigate("home")
+                                    navController.navigate("home") {
+                                        popUpTo(navController.currentDestination?.id ?: 0) { inclusive = true }
                                     }
-
                                 }
 
                             } else {
@@ -253,7 +250,9 @@ fun UserProfile(navController: NavHostController, userId: String?) {
 
                         Button(
                             onClick = {
-                                navController.navigate("welcome")
+                                navController.navigate("welcome") {
+                                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                }
                                 SharedPreferencesManager.clearUserId(context)
                                 SharedPreferencesManager.clearToken(context)
                                 SharedPreferencesManager.clearUserRole(context)
@@ -321,22 +320,4 @@ fun onClickButtonUpdateUser(id: String, userModel: UserModel, callback: (UserMod
 fun onClickButtonDeleteUser(id: String, callback: (UserModel?) -> Unit){
     val call = ApiClient.apiService.deleteUserById(id)
     apiCall(call, callback)
-}
-
-
-fun applyMask(input: String): String {
-    val mask = "###.###.###-##"
-    val cleanInput = input.replace("[^0-9]".toRegex(), "")
-    val maskedInput = StringBuilder()
-    var inputIndex = 0
-    for (i in mask.indices) {
-        if (inputIndex >= cleanInput.length) break
-        if (mask[i] == '#') {
-            maskedInput.append(cleanInput[inputIndex])
-            inputIndex++
-        } else {
-            maskedInput.append(mask[i])
-        }
-    }
-    return maskedInput.toString()
 }
