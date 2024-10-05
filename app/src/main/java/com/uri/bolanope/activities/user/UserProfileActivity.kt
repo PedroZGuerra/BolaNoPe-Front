@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -103,7 +105,8 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     onValueChange = { email = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email") },
-                    enabled = activityMode != "UPDATE"
+                    enabled = activityMode != "UPDATE",
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
 
                 OutlinedTextField(
@@ -121,7 +124,6 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     label = { Text("Nome") }
                 )
 
-
                 OutlinedTextField(
                     value = cpf,
                     onValueChange = { it ->
@@ -131,7 +133,8 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("CPF") },
-                    visualTransformation = MaskVisualTransformation(cpf_mask)
+                    visualTransformation = MaskVisualTransformation(cpf_mask),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
                 OutlinedTextField(
@@ -143,7 +146,8 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Data de nascimento") },
-                    visualTransformation = MaskVisualTransformation(date_mask)
+                    visualTransformation = MaskVisualTransformation(date_mask),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
                 OutlinedTextField(
@@ -155,7 +159,8 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("CEP") },
-                    visualTransformation = MaskVisualTransformation(cep_mask)
+                    visualTransformation = MaskVisualTransformation(cep_mask),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
                 if (activityMode == "CREATE") {

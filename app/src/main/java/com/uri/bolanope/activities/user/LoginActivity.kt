@@ -13,8 +13,10 @@ import androidx.compose.ui.unit.dp
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavHostController
 import com.uri.bolanope.R
 import com.uri.bolanope.components.TopBar
@@ -68,7 +70,8 @@ fun Login(navController: NavHostController) {
                     onValueChange = { email = it },
                     modifier = Modifier
                         .fillMaxWidth(),
-                    label = { Text("Email") }
+                    label = { Text("Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
