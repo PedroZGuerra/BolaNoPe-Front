@@ -1,64 +1,57 @@
 package com.uri.bolanope.activities.team
 
+import android.graphics.Bitmap
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.model.RequestBody
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel
+import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
-import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
 fun Team(navController: NavHostController, teamId: String?) {
     val context = LocalContext.current
     val team = remember { mutableStateOf<TeamModel?>(null) }
-    val membersNames = remember { mutableStateListOf<Pair<String, Boolean>>() }
+    val members = remember { mutableStateListOf<UserModel>() }
     val user_id = SharedPreferencesManager.getUserId(context)
+    var leader_id by remember { mutableStateOf<String>("") }
     val user_token = SharedPreferencesManager.getToken(context)
-    var leader_name by remember { mutableStateOf("") }
     val showDeleteDialog = remember { mutableStateOf(false) }
-    var isUserMember by remember { mutableStateOf(false) }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
             getTeamById(teamId) { result ->
                 if (result != null) {
                     team.value = result
-                    val addedLeader = result.leader_id
-
-                    getUserById(addedLeader!!) { user ->
-                        user?.let {
-                            membersNames.add(0, Pair(it.name, true))
-                            leader_name = it.name
-                        }
-                    }
+                    leader_id = result.leader_id ?: ""
 
                     result.members_id!!.forEach { memberId ->
                         getUserById(memberId) { user ->
                             user?.let {
-                                if (it._id != addedLeader) {
-                                    membersNames.add(Pair(it.name, false))
-                                }
+                                members.add(it)
                             }
                         }
                     }
-
-                    isUserMember = result.members_id.contains(user_id)
                 } else {
                     Toast.makeText(context, "Falha ao carregar o time.", Toast.LENGTH_LONG).show()
                 }
@@ -98,41 +91,51 @@ fun Team(navController: NavHostController, teamId: String?) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(text = "Membros:", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Participantes:", style = MaterialTheme.typography.titleMedium)
 
-                    LazyRow(
+                    LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        items(membersNames.size) { index ->
-                            val (memberName, isLeader) = membersNames[index]
-                            val cardColor = if (isLeader) Green80 else MaterialTheme.colorScheme.surfaceVariant
-                            val textColor = if (isLeader) Color.White else MaterialTheme.colorScheme.onSurface
+                        val sortedMembers = members.sortedBy { if (it._id == leader_id) 0 else 1 }
+
+                        items(sortedMembers.size) { index ->
+                            val member = sortedMembers[index]
+                            var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+                            imageBitmap = member.image?.let { base64ToBitmap(it) }
+                            val isLeader = member._id?.equals(leader_id) == true
+
                             Card(
-                                shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
-                                    .width(120.dp)
-                                    .height(60.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = cardColor
-                                )
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.Start
                                 ) {
-                                    Text(
-                                        text = memberName,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = textColor
-                                    )
+                                    imageBitmap?.let {
+                                        Image(
+                                            bitmap = it.asImageBitmap(),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .padding(end = 8.dp),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    Column {
+                                        Text(text = member.name)
+                                        Text(text = if (isLeader) "Líder" else "Membro")
+                                    }
                                 }
                             }
                         }
                     }
 
-                    if (!isUserMember) {
+                    if (team.value?.members_id?.contains(user_id) == false) {
                         Button(
                             onClick = {
                                 Log.d("TAG", "Team: entrar no time mt fera")
@@ -150,6 +153,7 @@ fun Team(navController: NavHostController, teamId: String?) {
                             Text("Quero participar")
                         }
                     }
+
 
                     if (user_id == team.value?.leader_id) {
                         Column{
