@@ -13,5 +13,6 @@ data class UserModel(
     val complement: String?,
     val neighborhood: String?,
     val locality: String?,
-    val uf: String?
+    val uf: String?,
+    val image: String?
 )

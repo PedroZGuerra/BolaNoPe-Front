@@ -30,11 +30,30 @@ interface ApiService {
     @GET("user/{id}")
     fun getUserById(@Path("id") id: String): Call<UserModel>
 
+    @Multipart
     @POST("user/")
-    fun postUser(@Body body: UserModel): Call<CreateUserResponseModel>
+    fun postUser(
+        @Part("email") email: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part("password") password: RequestBody,
+        @Part("cpf") cpf: RequestBody,
+        @Part("birth") birth: RequestBody,
+        @Part("cep") cep: RequestBody,
+        @Part file_url: MultipartBody.Part?,
+    ): Call<CreateUserResponseModel>
 
+    @Multipart
     @PUT("user/{id}")
-    fun putUserById(@Path("id") id: String , @Body body: UserModel): Call<UserModel>
+    fun putUserById(
+        @Path("id") id: String,
+        @Part("email") email: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part("password") password: RequestBody,
+        @Part("cpf") cpf: RequestBody,
+        @Part("birth") birth: RequestBody,
+        @Part("cep") cep: RequestBody,
+        @Part file_url: MultipartBody.Part?,
+    ): Call<UserModel>
 
     @DELETE("user/{id}")
     fun deleteUserById(@Path("id") id: String): Call<UserModel>
