@@ -16,6 +16,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -72,21 +73,32 @@ fun ExploreTeams(navController: NavHostController) {
             }
         },
         content = { paddingValues ->
-            teams.value?.let { teamList ->
-                LazyColumn(
+            Column {
+                Button(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .align(Alignment.CenterHorizontally),
+                    onClick = ({})
                 ) {
-                    items(teamList) { team ->
-                        if (userId != null) {
-                            TeamCard(team, navController, userId )
+                    Text("Meus times")
+                }
+                teams.value?.let { teamList ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                    ) {
+                        items(teamList) { team ->
+                            if (userId != null) {
+                                TeamCard(team, navController, userId )
+                            }
                         }
                     }
-                }
-            } ?: run {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                } ?: run {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
