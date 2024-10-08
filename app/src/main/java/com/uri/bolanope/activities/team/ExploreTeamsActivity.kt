@@ -3,6 +3,7 @@ package com.uri.bolanope.activities.team
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,14 +75,32 @@ fun ExploreTeams(navController: NavHostController) {
         },
         content = { paddingValues ->
             Column {
-                Button(
+                Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .align(Alignment.CenterHorizontally),
-                    onClick = ({})
+                        .align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Meus times")
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp, end = 4.dp),
+
+                        onClick = ({
+                            navController.navigate("myTeams/true")
+                        })
+                    ) {
+                        Text("Sou líder")
+                    }
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 4.dp, end = 8.dp),
+                        onClick = ({
+                            navController.navigate("myTeams/false")
+                        })
+                    ) {
+                        Text("Sou membro")
+                    }
                 }
                 teams.value?.let { teamList ->
                     LazyColumn(
