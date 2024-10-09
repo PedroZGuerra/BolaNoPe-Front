@@ -114,6 +114,16 @@ interface ApiService {
     @GET("team/")
     fun getAllTeams(): Call<List<TeamModel>?>
 
+    @GET("team/leader")
+    fun getTeamsByLeader(
+        @Header("Authorization") token: String
+    ): Call<List<TeamModel>?>
+
+    @GET("team/members/{id}")
+    fun getTeamsByMember(
+        @Path("id") id: String,
+    ): Call<List<TeamModel>?>
+
     @POST("team/")
     fun createTeam(
         @Body body: TeamModel,
