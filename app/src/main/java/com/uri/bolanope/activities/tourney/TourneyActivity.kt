@@ -66,7 +66,7 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
     val tourney = remember { mutableStateOf<TourneyModel?>(null) }
 
     var selectedTeams by remember { mutableStateOf<List<TeamModel>?>(emptyList()) }
-    var showTeamPopup by remember { mutableStateOf(false) }
+    var showAddTeamPopup by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(tourneyId) {
@@ -196,18 +196,31 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                         }
                     }
                     if ((teamsUserIsLeader.value?.size ?: 0) > 0) {
-                        Button(
-                            onClick = {
-                                showTeamPopup = true
+                        Row {
+                            Button(
+                                onClick = {
+                                    showAddTeamPopup = true
+                                }
+                            ) {
+                                Text("Inscrever meu time")
                             }
-                        ) {
-                            Text("Inscrever meu time")
+                            Button(
+                                onClick = {
+                                    showAddTeamPopup = true
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Retirar meu time")
+                            }
                         }
                     }
                 }
             }
         )
-        if (showTeamPopup) {
+        if (showAddTeamPopup) {
             TeamSelectionPopup(
                 context = context,
                 tourneyId = tourneyId,
@@ -223,7 +236,7 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                     }
                 },
                 onDismiss = {
-                    showTeamPopup = false
+                    showAddTeamPopup = false
                 }
             )
         }
@@ -268,16 +281,14 @@ fun TeamSelectionPopup(
     teams: List<TeamModel>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    selectedTeams: List<TeamModel>, // Teams already in the tournament
+    selectedTeams: List<TeamModel>,
     onMemberToggle: (TeamModel, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // Filter out teams that are already in the tournament
     val availableTeams = teams.filterNot { team ->
         selectedTeams.contains(team)
     }
 
-    // Further filter teams based on search query
     val filteredTeams = availableTeams.filter { team ->
         team.name!!.contains(searchQuery, ignoreCase = true)
     }
@@ -296,8 +307,7 @@ fun TeamSelectionPopup(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn {
-                    items(filteredTeams) { team ->
-                        // Check if the team is selected
+                    items(teams) { team ->
                         val isChecked = selectedTeams.contains(team)
 
                         Row(
@@ -323,6 +333,7 @@ fun TeamSelectionPopup(
         confirmButton = {
             Button(
                 onClick = {
+                    // Add teams
                     selectedTeams.filterNot { it in selectedTeams }
                         .forEach { team ->
                             team._id?.let {
@@ -330,6 +341,14 @@ fun TeamSelectionPopup(
                                     if (result == null) {
                                         Toast.makeText(context, "Falha ao adicionar os times ao torneio.", Toast.LENGTH_LONG).show()
                                     }
+                                }
+                            }
+                        }
+                    teams.filterNot { selectedTeams.contains(it) }
+                        .forEach { team ->
+                            team._id?.let {
+                                removeTeamFromTourney(it, tourneyId) { result ->
+
                                 }
                             }
                         }
@@ -359,5 +378,13 @@ fun addTeamToTourney(teamId: String, id: String, callback: (TourneyModel?) -> Un
         teamId
     )
     val call = ApiClient.apiService.addTeamToTourney(id, body)
+    apiCall(call, callback)
+}
+
+fun removeTeamFromTourney(teamId: String, id: String, callback: (TourneyModel?) -> Unit) {
+    val body = addTeamToTourneyBody(
+        teamId
+    )
+    val call = ApiClient.apiService.removeTeamFromTourney(id, body)
     apiCall(call, callback)
 }
