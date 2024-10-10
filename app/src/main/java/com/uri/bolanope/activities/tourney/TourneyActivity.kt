@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,12 +63,15 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
     val context = LocalContext.current
     val userRole = SharedPreferencesManager.getUserRole(context)
     val userToken = SharedPreferencesManager.getToken(context)
+    val userId = SharedPreferencesManager.getUserId(context)
     val showDeleteDialog = remember { mutableStateOf(false) }
     val tourney = remember { mutableStateOf<TourneyModel?>(null) }
+    var selectedTeamsAdd by remember { mutableStateOf<List<TeamModel>>(emptyList()) }
+    var selectedTeamsRemove by remember { mutableStateOf<List<TeamModel>>(emptyList()) }
 
-    var selectedTeams by remember { mutableStateOf<List<TeamModel>?>(emptyList()) }
     var showAddTeamPopup by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var mode by remember { mutableStateOf("add") }
 
     LaunchedEffect(tourneyId) {
         getTourneyById(tourneyId) { result ->
@@ -76,6 +80,9 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                 result.id_teams.forEach { teamId ->
                     getTeamById(teamId) { teamResult ->
                         if (teamResult != null) {
+                            if (teamResult.leader_id == userId) {
+                                selectedTeamsRemove = selectedTeamsRemove + teamResult
+                            }
                             teamNames.add(teamResult.name!!)
                         } else {
                             Toast.makeText(context, "Time ${teamId} não encontrado", Toast.LENGTH_LONG).show()
@@ -138,14 +145,13 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                     Text(text = "Times Participantes:", style = MaterialTheme.typography.titleMedium)
 
                     val tourneySize = currentTourney.id_teams.size
-                    if (tourneySize > 0){
+                    if (tourneySize > 0) {
                         LazyRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            items(currentTourney.id_teams.size) { index ->
-                                val teamName = teamNames.getOrNull(index) ?: "Carregando..."
+                            items(teamNames) { teamName ->
                                 val cardColor = Green80
                                 val textColor = Color.White
                                 Card(
@@ -195,23 +201,23 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                             }
                         }
                     }
-                    if ((teamsUserIsLeader.value?.size ?: 0) > 0) {
+                    if (teamsUserIsLeader.value?.isNotEmpty() == true) {
                         Row {
                             Button(
                                 onClick = {
                                     showAddTeamPopup = true
+                                    mode = "add"
                                 }
                             ) {
                                 Text("Inscrever meu time")
                             }
+                            Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showAddTeamPopup = true
+                                    mode = "remove"
                                 },
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = Color.Red,
-                                    contentColor = Color.White
-                                )
+                                colors = ButtonDefaults.textButtonColors(containerColor = Color.Red)
                             ) {
                                 Text("Retirar meu time")
                             }
@@ -222,17 +228,28 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
         )
         if (showAddTeamPopup) {
             TeamSelectionPopup(
-                context = context,
                 tourneyId = tourneyId,
+                context = context,
                 teams = teamsUserIsLeader.value ?: emptyList(),
                 searchQuery = searchQuery,
+                navController = navController,
+                mode = mode,
+                teamNames = teamNames,
                 onSearchQueryChange = { searchQuery = it },
-                selectedTeams = selectedTeams?.filterNotNull() ?: emptyList(),
-                onMemberToggle = { team, isSelected ->
-                    selectedTeams = if (isSelected) {
-                        selectedTeams?.plus(team)
+                selectedTeamsAdd = selectedTeamsAdd,
+                selectedTeamsRemove = selectedTeamsRemove,
+                onTeamToggleAdd = { team, isSelected ->
+                    if (isSelected) {
+                        selectedTeamsAdd = selectedTeamsAdd + team
                     } else {
-                        selectedTeams?.filter { it != team }
+                        selectedTeamsAdd = selectedTeamsAdd - team
+                    }
+                },
+                onTeamToggleRemove = { team, isSelected ->
+                    if (isSelected) {
+                        selectedTeamsRemove = selectedTeamsRemove + team
+                    } else {
+                        selectedTeamsRemove = selectedTeamsRemove - team
                     }
                 },
                 onDismiss = {
@@ -280,13 +297,20 @@ fun TeamSelectionPopup(
     context: Context,
     teams: List<TeamModel>,
     searchQuery: String,
+    mode: String,
+    teamNames: MutableList<String>,
+    navController: NavHostController,
     onSearchQueryChange: (String) -> Unit,
-    selectedTeams: List<TeamModel>,
-    onMemberToggle: (TeamModel, Boolean) -> Unit,
+    selectedTeamsAdd: List<TeamModel>,
+    selectedTeamsRemove: List<TeamModel>,
+    onTeamToggleAdd: (TeamModel, Boolean) -> Unit,
+    onTeamToggleRemove: (TeamModel, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val availableTeams = teams.filterNot { team ->
-        selectedTeams.contains(team)
+    val availableTeams = when (mode) {
+        "add" -> teams.filterNot { team -> selectedTeamsRemove.contains(team) }
+        "remove" -> teams
+        else -> emptyList()
     }
 
     val filteredTeams = availableTeams.filter { team ->
@@ -295,7 +319,7 @@ fun TeamSelectionPopup(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Selecione o Time") },
+        title = { Text(if (mode == "add") "Selecione o Time para Adicionar" else "Selecione o Time para Remover") },
         text = {
             Column {
                 TextField(
@@ -307,8 +331,12 @@ fun TeamSelectionPopup(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn {
-                    items(teams) { team ->
-                        val isChecked = selectedTeams.contains(team)
+                    items(filteredTeams) { team ->
+                        val isChecked = when (mode) {
+                            "add" -> selectedTeamsAdd.contains(team)
+                            "remove" -> selectedTeamsRemove.contains(team)
+                            else -> false
+                        }
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -317,41 +345,44 @@ fun TeamSelectionPopup(
                             Checkbox(
                                 checked = isChecked,
                                 onCheckedChange = { isSelected ->
-                                    onMemberToggle(team, isSelected)
+                                    when (mode) {
+                                        "add" -> onTeamToggleAdd(team, isSelected)
+                                        "remove" -> onTeamToggleRemove(team, isSelected)
+                                    }
                                 }
                             )
                             Text(team.name!!)
                         }
                     }
                 }
-
-                if (filteredTeams.isEmpty()) {
-                    Text("Nenhum time disponível", style = MaterialTheme.typography.bodyMedium)
-                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    // Add teams
-                    selectedTeams.filterNot { it in selectedTeams }
-                        .forEach { team ->
+                    if (mode == "add") {
+                        selectedTeamsAdd.forEach { team ->
                             team._id?.let {
                                 addTeamToTourney(it, tourneyId) { result ->
-                                    if (result == null) {
+                                    if (result != null) {
+                                        teamNames.add(result.name)
+                                    } else {
                                         Toast.makeText(context, "Falha ao adicionar os times ao torneio.", Toast.LENGTH_LONG).show()
                                     }
                                 }
                             }
                         }
-                    teams.filterNot { selectedTeams.contains(it) }
-                        .forEach { team ->
+                    } else if (mode == "remove") {
+                        selectedTeamsRemove.forEach { team ->
                             team._id?.let {
                                 removeTeamFromTourney(it, tourneyId) { result ->
 
                                 }
                             }
                         }
+                    }
+                    onDismiss()
+                    navController.navigate("exploreTourneys")
                 }
             ) {
                 Text("Concluído")
@@ -381,7 +412,7 @@ fun addTeamToTourney(teamId: String, id: String, callback: (TourneyModel?) -> Un
     apiCall(call, callback)
 }
 
-fun removeTeamFromTourney(teamId: String, id: String, callback: (TourneyModel?) -> Unit) {
+fun removeTeamFromTourney(teamId: String, id: String, callback: (Void?) -> Unit) {
     val body = addTeamToTourneyBody(
         teamId
     )
