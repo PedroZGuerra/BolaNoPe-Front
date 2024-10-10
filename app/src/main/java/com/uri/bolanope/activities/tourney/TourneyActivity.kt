@@ -1,5 +1,6 @@
 package com.uri.bolanope.activities.tourney
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,7 @@ import com.uri.bolanope.activities.team.getTeamsByLeader
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
+import com.uri.bolanope.model.addTeamToTourneyBody
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
@@ -63,7 +65,7 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
     val showDeleteDialog = remember { mutableStateOf(false) }
     val tourney = remember { mutableStateOf<TourneyModel?>(null) }
 
-    var selectedTeams by remember { mutableStateOf<List<TeamModel>?>(null) }
+    var selectedTeams by remember { mutableStateOf<List<TeamModel>?>(emptyList()) }
     var showTeamPopup by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
@@ -196,7 +198,7 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                     if ((teamsUserIsLeader.value?.size ?: 0) > 0) {
                         Button(
                             onClick = {
-                                showTeamPopup = true  // Set to true to show the popup
+                                showTeamPopup = true
                             }
                         ) {
                             Text("Inscrever meu time")
@@ -207,14 +209,22 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
         )
         if (showTeamPopup) {
             TeamSelectionPopup(
+                context = context,
+                tourneyId = tourneyId,
                 teams = teamsUserIsLeader.value ?: emptyList(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = { searchQuery = it },
                 selectedTeams = selectedTeams?.filterNotNull() ?: emptyList(),
                 onMemberToggle = { team, isSelected ->
-                    // Handle team selection toggle logic here
+                    selectedTeams = if (isSelected) {
+                        selectedTeams?.plus(team)
+                    } else {
+                        selectedTeams?.filter { it != team }
+                    }
                 },
-                onDismiss = { showTeamPopup = false }  // Close the popup
+                onDismiss = {
+                    showTeamPopup = false
+                }
             )
         }
 
@@ -253,14 +263,22 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
 
 @Composable
 fun TeamSelectionPopup(
+    tourneyId: String,
+    context: Context,
     teams: List<TeamModel>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    selectedTeams: List<TeamModel>,
+    selectedTeams: List<TeamModel>, // Teams already in the tournament
     onMemberToggle: (TeamModel, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val filteredUsers = teams.filter { team ->
+    // Filter out teams that are already in the tournament
+    val availableTeams = teams.filterNot { team ->
+        selectedTeams.contains(team)
+    }
+
+    // Further filter teams based on search query
+    val filteredTeams = availableTeams.filter { team ->
         team.name!!.contains(searchQuery, ignoreCase = true)
     }
 
@@ -278,39 +296,68 @@ fun TeamSelectionPopup(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn {
-                    items(filteredUsers) { user ->
-                        val isChecked = selectedTeams.contains(user)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    items(filteredTeams) { team ->
+                        // Check if the team is selected
+                        val isChecked = selectedTeams.contains(team)
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Checkbox(
                                 checked = isChecked,
                                 onCheckedChange = { isSelected ->
-                                    onMemberToggle(user, isSelected)
+                                    onMemberToggle(team, isSelected)
                                 }
                             )
-                            Text(user.name!!)
+                            Text(team.name!!)
                         }
                     }
+                }
+
+                if (filteredTeams.isEmpty()) {
+                    Text("Nenhum time disponível", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         },
         confirmButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = {
+                    selectedTeams.filterNot { it in selectedTeams }
+                        .forEach { team ->
+                            team._id?.let {
+                                addTeamToTourney(it, tourneyId) { result ->
+                                    if (result == null) {
+                                        Toast.makeText(context, "Falha ao adicionar os times ao torneio.", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        }
+                }
+            ) {
                 Text("Concluído")
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = Color.Red
-                )
+                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
             ) {
                 Text("Cancelar")
             }
         }
     )
 }
+
 fun getTourneyById(id: String, callback: (TourneyModel?) -> Unit) {
     val call = ApiClient.apiService.getTourneyById(id)
+    apiCall(call, callback)
+}
+
+fun addTeamToTourney(teamId: String, id: String, callback: (TourneyModel?) -> Unit) {
+    val body = addTeamToTourneyBody(
+        teamId
+    )
+    val call = ApiClient.apiService.addTeamToTourney(id, body)
     apiCall(call, callback)
 }
