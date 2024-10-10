@@ -10,12 +10,14 @@ import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
+import com.uri.bolanope.model.addTeamToTourneyBody
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -177,8 +179,26 @@ interface ApiService {
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
 
+    @POST("tourney/{id}/addteam")
+    fun addTeamToTourney(
+        @Path("id")
+        id: String,
+        @Body body: addTeamToTourneyBody,
+    ): Call<TourneyModel>
+
+    @HTTP(method = "DELETE", path = "tourney/{id}/removeteam", hasBody = true)
+    fun removeTeamFromTourney(
+        @Path("id") id: String,
+        @Body body: addTeamToTourneyBody,
+    ): Call<Void>
+
     @GET("tourney/{id}")
     fun getTourneyById(@Path("id") id: String): Call<TourneyModel>
+
+    @GET("tourney/{id}/teams")
+    fun getTeamsByTourneyId(
+        @Path("id") id: String
+    ): Call<List<TeamModel>>
 
     @POST("tourney/")
     fun createTourney(
