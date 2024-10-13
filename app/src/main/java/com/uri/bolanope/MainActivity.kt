@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.uri.bolanope.activities.common.HomeAdmin
 import com.uri.bolanope.activities.common.HomePage
 import com.uri.bolanope.activities.common.Welcome
@@ -34,7 +36,9 @@ import com.uri.bolanope.activities.tourney.ExploreTourneys
 import com.uri.bolanope.activities.tourney.Tourney
 import com.uri.bolanope.activities.user.Login
 import com.uri.bolanope.activities.user.UserProfile
+import com.uri.bolanope.services.NotificationWorker
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +58,12 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
+        val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(notificationWorkRequest)
+
         enableEdgeToEdge()
         setContent {
             BolaNoPeTheme {

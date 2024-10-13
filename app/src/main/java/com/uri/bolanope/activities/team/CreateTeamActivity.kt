@@ -209,7 +209,7 @@ fun UserSelectionPopup(
                                     onMemberToggle(user, isSelected)
                                 }
                             )
-                            Text(user.name)
+                            Text(user.email)
                         }
                     }
                 }
