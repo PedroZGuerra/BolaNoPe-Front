@@ -202,7 +202,10 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                         }
                     }
                     if (teamsUserIsLeader.value?.isNotEmpty() == true) {
-                        Row {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        ) {
                             Button(
                                 onClick = {
                                     showAddTeamPopup = true
@@ -217,7 +220,10 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                                     showAddTeamPopup = true
                                     mode = "remove"
                                 },
-                                colors = ButtonDefaults.textButtonColors(containerColor = Color.Red)
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White
+                                )
                             ) {
                                 Text("Retirar meu time")
                             }
