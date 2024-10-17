@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -23,6 +24,8 @@ import com.uri.bolanope.activities.field.Field
 import com.uri.bolanope.activities.field.FieldHistory
 import com.uri.bolanope.activities.field.Fields
 import com.uri.bolanope.activities.field.ReserveField
+import com.uri.bolanope.activities.teacher.CreateTeacherActivity
+import com.uri.bolanope.activities.teacher.TeacherActivity
 import com.uri.bolanope.activities.team.CreateTeam
 import com.uri.bolanope.activities.team.EditTeam
 import com.uri.bolanope.activities.team.ExploreTeams
@@ -62,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "welcome" ) {
+                    NavHost(navController = navController, startDestination = "welcome") {
                         composable("welcome") {
                             Welcome(navController)
                         }
@@ -172,7 +175,7 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")
-                            TeamRequests(navController, id!! )
+                            TeamRequests(navController, id!!)
                         }
 
                         composable("exploreTourneys") {
@@ -199,9 +202,20 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")
-                            EditTourney(navController, id!! )
+                            EditTourney(navController, id!!)
                         }
-
+                        composable(
+                            route = "teacher/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            TeacherActivity(navController, id!!)
+                        }
+                        composable("createTeacher") {
+                            CreateTeacherActivity(navController)
+                        }
                     }
                 }
             }

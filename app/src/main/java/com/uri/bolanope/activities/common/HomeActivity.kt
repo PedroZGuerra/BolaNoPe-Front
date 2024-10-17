@@ -13,15 +13,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,13 +44,17 @@ import androidx.navigation.NavHostController
 import com.uri.bolanope.R
 import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.activities.field.getAllFields
+import com.uri.bolanope.activities.team.getAllUsers
 import com.uri.bolanope.components.BottomNavigationBar
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.UserModel
+import com.uri.bolanope.ui.theme.Green80
 
 @Composable
 fun HomePage(navController: NavHostController) {
     val context = LocalContext.current
     val fields = remember { mutableStateOf<List<FieldModel>?>(null) }
+    val teachers = remember { mutableStateOf<List<UserModel>?>(emptyList()) }
 
     LaunchedEffect(Unit) {
         getAllFields { result ->
@@ -53,6 +62,19 @@ fun HomePage(navController: NavHostController) {
                 fields.value = result
             } else {
                 Toast.makeText(context, "Falha ao carregar os campos.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        getAllUsers { result ->
+
+            if(result != null){
+                result.forEach({ user ->
+                    if(user.role == "professor"){
+                        teachers.value = teachers.value?.plus(user)
+                    }
+                })
+            } else {
+                Toast.makeText(context, "Falha ao carregar os professores.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -173,8 +195,51 @@ fun HomePage(navController: NavHostController) {
                     }
                 }
             }
+            Text(
+                text = "Nossos professores:",
+                modifier = Modifier
+                    .padding(top = 16.dp, start = 8.dp)
+                    .align(Alignment.Start)
+            )
+            if (teachers.value?.isEmpty() == true) {
+                Text(
+                    text = "Nenhum professor disponível.",
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    items(teachers.value.orEmpty()) { teacher ->
+                        TeacherCard(navController, teacher)
+                    }
+                }
+            }
         }
     }
+}
 
-
+@Composable
+fun TeacherCard(navController: NavHostController, teacher: UserModel) {
+    Card(
+        onClick = {
+            navController.navigate("teacher/${teacher._id}")
+        },
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .width(120.dp)
+            .height(60.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = teacher.name,
+                style = MaterialTheme.typography.body1,
+            )
+        }
+    }
 }
