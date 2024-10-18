@@ -16,10 +16,12 @@ import com.uri.bolanope.activities.team.getAllUsers
 import com.uri.bolanope.model.NotificationModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.utils.SharedPreferencesManager
+import com.uri.bolanope.utils.readNotification
 import com.uri.bolanope.utils.sendNotification
 import retrofit2.await
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.contracts.contract
 
 class NotificationWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
@@ -30,9 +32,14 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) : 
 
             if (notifications != null) {
                 notifications.forEach { notification ->
-                    notification.read = false
                     if(!notification.read){
-                        sendNotification("1", notification.title, notification.message, applicationContext, null)
+                        notification._id?.let {
+                            sendNotification("1",
+                                notification.title, notification.message, applicationContext, 5)
+                            readNotification(notification._id) { notificationRead ->
+
+                            }
+                        }
                     }
                 }
                 return Result.success()
@@ -47,6 +54,7 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) : 
         return try {
             val call = ApiClient.apiService.getNotification(userId)
             val response = call.await()
+            Log.d("TAG", "chegou $response")
             response
         } catch (e: Exception) {
             e.printStackTrace()

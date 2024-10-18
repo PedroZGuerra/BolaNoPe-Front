@@ -187,15 +187,21 @@ interface ApiService {
         token: String
     ): Call<TourneyModel?>
 
-    @POST("notifications/send")
+    @POST("notification/")
     fun sendNotification(
         @Body
         body: NotificationModel,
     ): Call<NotificationModel>
 
-    @GET("notification/{id}")
+    @GET("notification/user/{id}")
     fun getNotification(
         @Path("id")
         id: String
     ): Call<List<NotificationModel>>
+
+    @PUT("notification/{id}/read")
+    fun readNotification(
+        @Path("id")
+        id: String
+    ): Call<NotificationModel>
 }

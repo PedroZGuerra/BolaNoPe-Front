@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.NotificationModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
@@ -164,6 +165,17 @@ fun CreateTeam(navController: NavHostController) {
                                 Toast.makeText(context, "Falha ao criar time", Toast.LENGTH_LONG).show()
                             }
                         }
+
+                        teamModel.members_id?.forEach { member ->
+                            createNotification(member, teamName) { result ->
+                                if (result != null) {
+                                    Toast.makeText(context, "notificacao Criado com sucesso", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Falha ao criar notificacao", Toast.LENGTH_LONG).show()
+                                }
+
+                            }
+                        }
                     }
                 ) {
                     Text("Criar Time")
@@ -240,5 +252,17 @@ fun createTeam(teamModel: TeamModel, userToken: String, callback: (TeamModel?) -
 
 fun getAllUsers(callback: (List<UserModel>?) -> Unit) {
     val call = ApiClient.apiService.getAllUsers()
+    apiCall(call, callback)
+}
+
+fun createNotification(userId: String, teamName: String, callback: (NotificationModel?) -> Unit){
+    val notificationBody = NotificationModel(
+        _id = null,
+        userId = userId,
+        read = false,
+        title = "Adicionado ao time",
+        message = "Você foi adicionado ao time ${teamName}"
+    )
+    val call = ApiClient.apiService.sendNotification(notificationBody)
     apiCall(call, callback)
 }

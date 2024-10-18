@@ -10,6 +10,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.uri.bolanope.R
+import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.TourneyModel
+import com.uri.bolanope.services.ApiClient
+import com.uri.bolanope.services.apiCall
+import retrofit2.await
 
 fun sendNotification(channelId: String, title: String, descriptionText: String,  context: Context, importance: Int?) {
     val notificationId = 1
@@ -42,4 +47,11 @@ fun sendNotification(channelId: String, title: String, descriptionText: String, 
         }
         notify(notificationId, builder.build())
     }
+
+
+}
+
+fun readNotification(id: String, callback: (NotificationModel?) -> Unit) {
+    val call = ApiClient.apiService.readNotification(id)
+    apiCall(call, callback)
 }
