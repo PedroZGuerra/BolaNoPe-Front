@@ -4,6 +4,7 @@ import com.uri.bolanope.model.AcceptRequestBody
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.NotificationModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.TeamModel
@@ -215,4 +216,22 @@ interface ApiService {
         @Header("Authorization")
         token: String
     ): Call<TourneyModel?>
+
+    @POST("notification/")
+    fun sendNotification(
+        @Body
+        body: NotificationModel,
+    ): Call<NotificationModel>
+
+    @GET("notification/user/{id}")
+    fun getNotification(
+        @Path("id")
+        id: String
+    ): Call<List<NotificationModel>>
+
+    @PUT("notification/{id}/read")
+    fun readNotification(
+        @Path("id")
+        id: String
+    ): Call<NotificationModel>
 }

@@ -179,6 +179,17 @@ fun EditTeam(navController: NavHostController, teamId: String?) {
                                     Toast.makeText(context, "Falha ao atualizar o time", Toast.LENGTH_LONG).show()
                                 }
                             }
+
+                            updatedTeam.members_id?.forEach { member ->
+                                createNotification(member, teamName) { result ->
+                                    if (result != null) {
+                                        Toast.makeText(context, "notificacao Criado com sucesso", Toast.LENGTH_LONG).show()
+                                    } else {
+                                        Toast.makeText(context, "Falha ao criar notificacao", Toast.LENGTH_LONG).show()
+                                    }
+
+                                }
+                            }
                         }
                     }
                 ) {
