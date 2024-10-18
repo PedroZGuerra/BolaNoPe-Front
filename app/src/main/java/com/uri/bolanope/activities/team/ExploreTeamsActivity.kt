@@ -3,6 +3,7 @@ package com.uri.bolanope.activities.team
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -72,21 +74,50 @@ fun ExploreTeams(navController: NavHostController) {
             }
         },
         content = { paddingValues ->
-            teams.value?.let { teamList ->
-                LazyColumn(
+            Column {
+                Row (
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
                 ) {
-                    items(teamList) { team ->
-                        if (userId != null) {
-                            TeamCard(team, navController, userId )
-                        }
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp, end = 4.dp),
+
+                        onClick = ({
+                            navController.navigate("myTeams/true")
+                        })
+                    ) {
+                        Text("Sou líder")
+                    }
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 4.dp, end = 8.dp),
+                        onClick = ({
+                            navController.navigate("myTeams/false")
+                        })
+                    ) {
+                        Text("Sou membro")
                     }
                 }
-            } ?: run {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                teams.value?.let { teamList ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                    ) {
+                        items(teamList) { team ->
+                            if (userId != null) {
+                                TeamCard(team, navController, userId )
+                            }
+                        }
+                    }
+                } ?: run {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }

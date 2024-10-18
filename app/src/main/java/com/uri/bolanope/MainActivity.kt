@@ -28,6 +28,7 @@ import com.uri.bolanope.activities.field.ReserveField
 import com.uri.bolanope.activities.team.CreateTeam
 import com.uri.bolanope.activities.team.EditTeam
 import com.uri.bolanope.activities.team.ExploreTeams
+import com.uri.bolanope.activities.team.MyTeams
 import com.uri.bolanope.activities.team.Team
 import com.uri.bolanope.activities.team.TeamRequests
 import com.uri.bolanope.activities.tourney.CreateTourney
@@ -136,6 +137,18 @@ class MainActivity : ComponentActivity() {
 
                         composable("exploreTeams") {
                             ExploreTeams(navController)
+                        }
+
+                        composable("myTeams/{isLeader}") {
+                        }
+                        composable(
+                            route = "myTeams/{isLeader}",
+                            arguments = listOf(
+                                navArgument("isLeader") { type = NavType.BoolType }
+                            )
+                        ) { backStackEntry ->
+                            val isLeader = backStackEntry.arguments?.getBoolean("isLeader")
+                            MyTeams(navController, isLeader!!)
                         }
 
                         composable(
