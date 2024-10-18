@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation ("io.coil-kt:coil-compose:2.0.0")
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.ui.test.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

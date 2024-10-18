@@ -111,6 +111,26 @@ fun HomeAdmin(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text(
+                    text = "Criar Professor",
+                    modifier = Modifier
+                        .clickable {
+                            navController.navigate("createTeacher")
+                        }
+                )
+            }
+
+            Divider(
+                color = Color.Black,
+                thickness = 2.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
         }
     }
 }
