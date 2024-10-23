@@ -1,6 +1,7 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.AcceptRequestBody
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
@@ -234,4 +235,20 @@ interface ApiService {
         @Path("id")
         id: String
     ): Call<NotificationModel>
+
+    @GET("comment/team/{id}")
+    fun getComments(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<List<CommentModel>>
+
+    @POST("comment/")
+    fun createComment(
+        @Body
+        body: CommentModel,
+        @Header("Authorization")
+        token: String
+    ): Call<CommentModel>
 }
