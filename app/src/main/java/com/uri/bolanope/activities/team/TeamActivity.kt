@@ -167,45 +167,6 @@ fun Team(navController: NavHostController, teamId: String?) {
                         }
                     }
 
-                    item {
-                        CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
-                            commentArray.add(
-                                CommentModel(
-                                    _id = "0",
-                                    comment = newComment,
-                                    team_id = teamId,
-                                    user_id = user_id,
-                                    created_at = "agora"
-                                )
-                            )
-                        }
-                    }
-
-                    if (commentArray.isNotEmpty()) {
-                        item {
-                            Text(text = "Comentários:", style = MaterialTheme.typography.titleMedium)
-                        }
-                        items(commentArray.reversed()) { comment ->
-                            CommentCard(
-                                userId = comment.user_id,
-                                commentText = comment.comment,
-                                commentId = comment._id!!,
-                                time = comment.created_at,
-                                onDeleteComment = {
-                                    deleteComment(comment._id!!, user_token!!) { result ->
-                                        Toast.makeText(
-                                            context,
-                                            "Comentário deletado com sucesso.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                    Log.d("fodase", "comentario deletado pog")
-                                    commentArray.remove(comment)
-                                }
-                            )
-                        }
-                    }
-
                     if (user_id == team.value?.leader_id) {
                         item {
                             Column {
@@ -239,6 +200,46 @@ fun Team(navController: NavHostController, teamId: String?) {
                             }
                         }
                     }
+
+                    item {
+                        CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
+                            // por algum motivo ele crasha quando tem essa secao
+  //                        commentArray.add(
+  //                            CommentModel(
+  //                                _id = null,
+  //                                comment = newComment,
+  //                                team_id = teamId,
+  //                                user_id = user_id,
+  //                                created_at = "agora"
+  //                            )
+  //                        )
+                        }
+                    }
+
+                    if (commentArray.isNotEmpty()) {
+                        item {
+                            Text(text = "Comentários:", style = MaterialTheme.typography.titleMedium)
+                        }
+                        items(commentArray.reversed()) { comment ->
+                            CommentCard(
+                                userId = comment.user_id,
+                                commentText = comment.comment,
+                                commentId = comment._id!!,
+                                time = comment.created_at,
+                                onDeleteComment = {
+                                    deleteComment(comment._id!!, user_token!!) { result ->
+                                        Toast.makeText(
+                                            context,
+                                            "Comentário deletado com sucesso.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    commentArray.remove(comment)
+                                }
+                            )
+                        }
+                    }
+
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

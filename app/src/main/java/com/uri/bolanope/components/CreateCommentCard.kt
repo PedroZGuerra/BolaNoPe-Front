@@ -65,8 +65,8 @@ fun CreateComment(
                     createComment(teamId, userToken, userId, commentText) { result ->
                         if (result != null) {
                             Toast.makeText(context, "Comentário enviado com sucesso!", Toast.LENGTH_LONG).show()
-                            onCommentSubmitted(commentText) // Notify the parent that a comment was submitted
-                            commentText = "" // Clear the input field after submission
+                            onCommentSubmitted(commentText)
+                            commentText = ""
                         } else {
                             Toast.makeText(context, "Erro ao enviar comentário", Toast.LENGTH_LONG).show()
                         }
@@ -76,7 +76,7 @@ fun CreateComment(
                 }
             },
             modifier = Modifier.align(Alignment.End),
-            enabled = commentText.isNotEmpty() // Enable the button only when text is not empty
+            enabled = commentText.isNotEmpty()
         ) {
             Text("Enviar")
         }
