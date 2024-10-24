@@ -142,7 +142,7 @@ fun CommentCard(
                             onClick = { showDeleteDialog.value = true },
                             modifier = Modifier.align(Alignment.End)
                         ) {
-                            Text("Delete", color = MaterialTheme.colorScheme.error)
+                            Text("Deletar", color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
