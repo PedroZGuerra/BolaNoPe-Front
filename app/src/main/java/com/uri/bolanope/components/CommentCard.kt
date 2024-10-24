@@ -137,7 +137,6 @@ fun CommentCard(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Show Delete button if the current user is the author of the comment
                     if (userId == currentUserId) {
                         TextButton(
                             onClick = { showDeleteDialog.value = true },
