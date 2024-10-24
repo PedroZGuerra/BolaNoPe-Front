@@ -171,6 +171,7 @@ fun Team(navController: NavHostController, teamId: String?) {
                         CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
                             commentArray.add(
                                 CommentModel(
+                                    _id = "0",
                                     comment = newComment,
                                     team_id = teamId,
                                     user_id = user_id,
@@ -188,7 +189,19 @@ fun Team(navController: NavHostController, teamId: String?) {
                             CommentCard(
                                 userId = comment.user_id,
                                 commentText = comment.comment,
-                                time = comment.created_at
+                                commentId = comment._id!!,
+                                time = comment.created_at,
+                                onDeleteComment = {
+                                    deleteComment(comment._id!!, user_token!!) { result ->
+                                        Toast.makeText(
+                                            context,
+                                            "Comentário deletado com sucesso.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    Log.d("fodase", "comentario deletado pog")
+                                    commentArray.remove(comment)
+                                }
                             )
                         }
                     }
@@ -290,5 +303,10 @@ fun createTeamRequest(teamId: String, authHeader: String, callback: (RequestMode
 
 fun getCommentsByTeamId(team_id: String, token: String, callback: (List<CommentModel>?) -> Unit) {
     val call = ApiClient.apiService.getComments(team_id, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun deleteComment(id: String, authHeader: String, callback: (Void?) -> Unit) {
+    val call = ApiClient.apiService.deleteComment(id, "Bearer $authHeader")
     apiCall(call, callback)
 }

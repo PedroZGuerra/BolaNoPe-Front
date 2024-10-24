@@ -251,4 +251,12 @@ interface ApiService {
         @Header("Authorization")
         token: String
     ): Call<CommentModel>
+
+    @DELETE("comment/{id}")
+    fun deleteComment(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<Void>
 }

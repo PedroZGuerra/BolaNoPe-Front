@@ -85,6 +85,7 @@ fun CreateComment(
 
 fun createComment(team_id: String, token: String, user_id: String, comment: String, callback: (CommentModel?) -> Unit) {
     val body = CommentModel(
+        _id = null,
         team_id = team_id,
         user_id,
         comment,
