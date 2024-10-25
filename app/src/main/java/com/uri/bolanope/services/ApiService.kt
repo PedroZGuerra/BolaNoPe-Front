@@ -13,6 +13,7 @@ import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.model.addTeamToTourneyBody
+import com.uri.bolanope.model.getNumberOfTeamRequestsModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -177,6 +178,14 @@ interface ApiService {
         @Header("Authorization")
         authHeader: String
     ): Call<List<RequestModel>>
+
+    @GET("request/pending/{id}")
+    fun getNumberOfTeamRequests(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<getNumberOfTeamRequestsModel>
 
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>

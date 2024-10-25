@@ -29,6 +29,7 @@ import com.uri.bolanope.model.RequestBody
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
+import com.uri.bolanope.model.getNumberOfTeamRequestsModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
@@ -44,6 +45,7 @@ fun Team(navController: NavHostController, teamId: String?) {
     val user_token = SharedPreferencesManager.getToken(context)
     val showDeleteDialog = remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    val numberOfRequests = remember { mutableStateOf(0) }
 
     val commentArray = remember { mutableStateListOf<CommentModel>() }
 
@@ -196,7 +198,13 @@ fun Team(navController: NavHostController, teamId: String?) {
                                         navController.navigate("teamRequests/${team.value!!._id}")
                                     }
                                 ) {
-                                    Text("Visualizar pedidos de entrada")
+                                    getNumberOfTeamRequests(teamId!!, user_token!!) { number ->
+                                        if (number != null) {
+                                            Log.d("TAG", "$number")
+                                            numberOfRequests.value = number.pendingRequests!!
+                                        }
+                                    }
+                                    Text("Visualizar pedidos de entrada (${numberOfRequests.value})")
                                 }
                             }
                         }
@@ -204,7 +212,6 @@ fun Team(navController: NavHostController, teamId: String?) {
 
                     item {
                         CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
-                            // por algum motivo ele crasha quando tem essa secao
                           commentArray.add(
                               CommentModel(
                                   _id = "null",
@@ -305,6 +312,11 @@ fun createTeamRequest(teamId: String, authHeader: String, callback: (RequestMode
 
 fun getCommentsByTeamId(team_id: String, token: String, callback: (List<CommentModel>?) -> Unit) {
     val call = ApiClient.apiService.getComments(team_id, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun getNumberOfTeamRequests(team_id: String, token: String, callback: (getNumberOfTeamRequestsModel?) -> Unit) {
+    val call = ApiClient.apiService.getNumberOfTeamRequests(team_id, "Bearer $token")
     apiCall(call, callback)
 }
 
