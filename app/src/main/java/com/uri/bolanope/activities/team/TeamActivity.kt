@@ -32,6 +32,7 @@ import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
+import java.time.LocalTime
 
 @Composable
 fun Team(navController: NavHostController, teamId: String?) {
@@ -204,15 +205,15 @@ fun Team(navController: NavHostController, teamId: String?) {
                     item {
                         CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
                             // por algum motivo ele crasha quando tem essa secao
-  //                        commentArray.add(
-  //                            CommentModel(
-  //                                _id = null,
-  //                                comment = newComment,
-  //                                team_id = teamId,
-  //                                user_id = user_id,
-  //                                created_at = "agora"
-  //                            )
-  //                        )
+                          commentArray.add(
+                              CommentModel(
+                                  _id = "null",
+                                  comment = newComment,
+                                  team_id = teamId,
+                                  user_id = user_id,
+                                  created_at = "agora"
+                              )
+                          )
                         }
                     }
 

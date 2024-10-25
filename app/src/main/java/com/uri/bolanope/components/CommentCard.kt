@@ -120,7 +120,11 @@ fun CommentCard(
                         )
 
                         Text(
-                            text = formatDateTime(time),
+                            text = if (time != "agora") {
+                                formatDateTime(time)
+                            } else {
+                                time
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
