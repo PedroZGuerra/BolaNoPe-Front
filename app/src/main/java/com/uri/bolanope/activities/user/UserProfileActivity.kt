@@ -56,6 +56,7 @@ import com.uri.bolanope.activities.field.getFileName
 import com.uri.bolanope.utils.MaskVisualTransformation
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.CreateUserResponseModel
+import com.uri.bolanope.model.EditUserModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
@@ -191,14 +192,6 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                 )
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Senha") },
-                    visualTransformation = PasswordVisualTransformation()
-                )
-
-                OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -292,20 +285,11 @@ fun UserProfile(navController: NavHostController, userId: String?) {
 
                     Button(
                         onClick = {
-                            val userModel = UserModel(
-                                _id = null,
+                            val userModel = EditUserModel(
                                 name = name,
-                                cpf = cpf,
                                 birth = birth,
                                 email = email,
-                                password = password,
                                 cep = cep,
-                                role = null,
-                                patio = null,
-                                complement = null,
-                                neighborhood = null,
-                                locality = null,
-                                uf = null,
                                 image = null
                             )
 
@@ -435,7 +419,7 @@ fun getUserById(id: String, callback: (UserModel?) -> Unit) {
 fun onClickButtonUpdateUser(
     id: String,
     context: Context,
-    userModel: UserModel,
+    userModel: EditUserModel,
     imageUri: Uri?,
     callback: (UserModel?) -> Unit
 ) {
@@ -457,20 +441,16 @@ fun onClickButtonUpdateUser(
 
     val emailPart = userModel.email.toRequestBody("text/plain".toMediaTypeOrNull())
     val namePart = userModel.name.toRequestBody("text/plain".toMediaTypeOrNull())
-    val passwordPart = userModel.password.toRequestBody("text/plain".toMediaTypeOrNull())
-    val cpfPart = userModel.cpf.toRequestBody("text/plain".toMediaTypeOrNull())
     val birthPart = userModel.birth.toRequestBody("text/plain".toMediaTypeOrNull())
     val cepPart = userModel.cep.toRequestBody("text/plain".toMediaTypeOrNull())
 
     val call = ApiClient.apiService.putUserById(
-        id,
-        emailPart,
-        namePart,
-        passwordPart,
-        cpfPart,
-        birthPart,
-        cepPart,
-        imagePart
+        id = id,
+        email = emailPart,
+        name = namePart,
+        birth = birthPart,
+        cep = cepPart,
+        file_url = imagePart,
     )
     apiCall(call, callback)
 }

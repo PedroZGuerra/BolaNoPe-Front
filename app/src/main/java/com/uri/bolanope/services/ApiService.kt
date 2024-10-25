@@ -51,8 +51,6 @@ interface ApiService {
         @Path("id") id: String,
         @Part("email") email: RequestBody,
         @Part("name") name: RequestBody,
-        @Part("password") password: RequestBody,
-        @Part("cpf") cpf: RequestBody,
         @Part("birth") birth: RequestBody,
         @Part("cep") cep: RequestBody,
         @Part file_url: MultipartBody.Part?,
