@@ -38,6 +38,7 @@ import com.uri.bolanope.activities.tourney.CreateTourney
 import com.uri.bolanope.activities.tourney.EditTourney
 import com.uri.bolanope.activities.tourney.ExploreTourneys
 import com.uri.bolanope.activities.tourney.Tourney
+import com.uri.bolanope.activities.user.ChangePasswordActivity
 import com.uri.bolanope.activities.user.Login
 import com.uri.bolanope.activities.user.UserProfile
 import com.uri.bolanope.services.NotificationWorker
@@ -110,6 +111,17 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")
                             UserProfile(navController, id)
                         }
+
+                        composable(
+                            route = "changePassword/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            ChangePasswordActivity(navController, id)
+                        }
+
                         composable("fields") {
                             Fields(navController)
                         }

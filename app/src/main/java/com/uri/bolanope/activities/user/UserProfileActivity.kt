@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -301,7 +302,16 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                         Text("Finalizar edição")
                     }
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    Button(
+                        onClick = {
+                            navController.navigate("changePassword/$userId")
+                        },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text("Mudar Senha")
+                    }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(32.dp)
@@ -310,6 +320,10 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                             onClick = {
                                 showDialog = true
                             },
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            ),
                             modifier = Modifier.width(150.dp)
                         ) {
                             Text("Apagar conta")
