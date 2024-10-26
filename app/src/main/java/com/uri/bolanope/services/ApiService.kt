@@ -12,6 +12,7 @@ import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.model.addTeamToTourneyBody
+import com.uri.bolanope.model.tourneyAverageParticipantsModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -241,5 +242,6 @@ interface ApiService {
         id: String
     ): Call<NotificationModel>
 
-
+    @GET("tourney/average-participants")
+    fun getTourneyAverage(): Call<tourneyAverageParticipantsModel>
 }
