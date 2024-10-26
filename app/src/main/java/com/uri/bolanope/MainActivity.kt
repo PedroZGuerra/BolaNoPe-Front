@@ -39,6 +39,7 @@ import com.uri.bolanope.activities.tourney.EditTourney
 import com.uri.bolanope.activities.tourney.ExploreTourneys
 import com.uri.bolanope.activities.tourney.Tourney
 import com.uri.bolanope.activities.user.Login
+import com.uri.bolanope.activities.user.NotificationPage
 import com.uri.bolanope.activities.user.UserProfile
 import com.uri.bolanope.services.NotificationWorker
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
@@ -225,6 +226,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("createTeacher") {
                             CreateTeacherActivity(navController)
+                        }
+                        composable("notifications") {
+                            NotificationPage(navController)
                         }
                     }
                 }
