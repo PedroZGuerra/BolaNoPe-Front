@@ -99,7 +99,13 @@ fun HomeAdmin(navController: NavHostController) {
                 CardAdmin(navController, Icons.Filled.Person, "Criar Professor", "createTeacher", Modifier.weight(1f))
                 CardAdmin(navController, Icons.Filled.EmojiEvents, "Torneios", "exploreTourneys", Modifier.weight(1f))
             }
-            CardAdmin(navController, Icons.Filled.QueryStats, "Dashboard", "adminDashboard", Modifier.weight(1f))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                CardAdmin(navController, Icons.Filled.QueryStats, "Dashboard", "adminDashboard", Modifier.weight(1f))
+            }
         }
     }
 }
