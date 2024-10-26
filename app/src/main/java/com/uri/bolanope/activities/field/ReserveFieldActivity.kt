@@ -170,7 +170,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                             navController.navigate("fieldHistory/${fieldId}")
                         },
                     ) {
-                        Text("Histórico")
+                        Text("Reservas")
                     }
                 }
 

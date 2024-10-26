@@ -2,6 +2,7 @@ package com.uri.bolanope.activities.field
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -20,6 +21,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -99,7 +101,10 @@ fun Fields(navController: NavHostController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp),
-                            elevation = 4.dp
+                            onClick = {
+                                navController.navigate("reserveField/${field._id}")
+                            },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(
                                 modifier = Modifier
