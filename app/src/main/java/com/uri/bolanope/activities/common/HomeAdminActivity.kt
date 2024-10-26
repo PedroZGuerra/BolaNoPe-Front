@@ -18,11 +18,17 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,7 +42,6 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 fun HomeAdmin(navController: NavHostController) {
     val context = LocalContext.current
     Scaffold (
-        topBar = { TopBar("Home") },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -82,55 +87,43 @@ fun HomeAdmin(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ) {
-                Text(
-                    text = "Quadras",
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("fields")
-                        }
-                )
+                CardAdmin(navController, Icons.Filled.Home, "Home", "home", Modifier.weight(1f))
+                CardAdmin(navController, Icons.Filled.SportsSoccer, "Campos", "fields", Modifier.weight(1f))
             }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ) {
-                Text(
-                    text = "Torneios",
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("exploreTourneys")
-                        }
-                )
+                CardAdmin(navController, Icons.Filled.Person, "Criar Professor", "createTeacher", Modifier.weight(1f))
+                CardAdmin(navController, Icons.Filled.EmojiEvents, "Torneios", "exploreTourneys", Modifier.weight(1f))
             }
+        }
+    }
+}
 
-            Divider(
-                color = Color.Black,
-                thickness = 2.dp,
-                modifier = Modifier.fillMaxWidth()
+@Composable
+fun CardAdmin(navController: NavHostController, icon: ImageVector, text: String, route: String, modifier: Modifier = Modifier) {
+    Card(
+        onClick = {
+            navController.navigate(route)
+        },
+        modifier = modifier
+            .padding(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = Color.Black,
+                modifier = Modifier.size(48.dp)
             )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                Text(
-                    text = "Criar Professor",
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("createTeacher")
-                        }
-                )
-            }
-
-            Divider(
-                color = Color.Black,
-                thickness = 2.dp,
-                modifier = Modifier.fillMaxWidth()
-            )
-
+            Text(text)
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
