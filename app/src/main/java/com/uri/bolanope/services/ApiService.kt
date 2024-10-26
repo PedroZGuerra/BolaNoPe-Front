@@ -4,6 +4,7 @@ import com.uri.bolanope.model.AcceptRequestBody
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
@@ -244,4 +245,7 @@ interface ApiService {
 
     @GET("tourney/average-participants")
     fun getTourneyAverage(): Call<tourneyAverageParticipantsModel>
+
+    @GET("reserve/most-reserved-times")
+    fun getMostReservedTimes(): Call<List<MostReservedTimesModel>>
 }

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
@@ -47,6 +48,7 @@ fun Fields(navController: NavHostController) {
     val token = SharedPreferencesManager.getToken(context)
     var showDialog by remember { mutableStateOf(false) }
     var fieldToDelete by remember { mutableStateOf<FieldModel?>(null) }
+    val mostReservedTimes = remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
         getAllFields { result ->
@@ -54,6 +56,14 @@ fun Fields(navController: NavHostController) {
                 fields.value = result
             } else {
                 Toast.makeText(context, "Falha ao carregar os campos.", Toast.LENGTH_LONG).show()
+            }
+        }
+        getMostReservedTimes { result ->
+            if (result != null) {
+                val timesMap = result.associate { it.id_field to it.most_reserved_time }
+                mostReservedTimes.value = timesMap
+            } else {
+                Toast.makeText(context, "Falha ao carregar os horários mais reservados", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -108,6 +118,11 @@ fun Fields(navController: NavHostController) {
                                             style = MaterialTheme.typography.h6,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = "Horário mais reservado: ${mostReservedTimes.value[field._id] ?: "N/A"}",
+                                            style = MaterialTheme.typography.body2,
+                                            color = Color.Gray
                                         )
                                     }
 
@@ -187,5 +202,10 @@ fun getAllFields(callback: (List<FieldModel>?) -> Unit) {
 
 fun deleteFieldById(fieldId : String, token: String?, callback: (Void?) -> Unit){
     val call = ApiClient.apiService.deleteField(fieldId, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun getMostReservedTimes(callback: (List<MostReservedTimesModel>?) -> Unit){
+    val call = ApiClient.apiService.getMostReservedTimes()
     apiCall(call, callback)
 }
