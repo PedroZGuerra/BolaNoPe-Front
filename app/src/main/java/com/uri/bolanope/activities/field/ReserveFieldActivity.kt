@@ -73,6 +73,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var obs by remember { mutableStateOf("") }
     var value_hour by remember { mutableStateOf("") }
     var reserve_day by remember { mutableStateOf("") }
+    val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
 
     val field = FieldModel(
         _id = _id,
@@ -162,12 +163,15 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
             ) {
-                Button(
-                    onClick = {
-                        navController.navigate("fieldHistory/${fieldId}")
-                    },
-                ) {
-                    Text("Histórico")
+                if (userRole == "admin"){
+
+                    Button(
+                        onClick = {
+                            navController.navigate("fieldHistory/${fieldId}")
+                        },
+                    ) {
+                        Text("Histórico")
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
