@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -98,6 +99,7 @@ fun HomeAdmin(navController: NavHostController) {
                 CardAdmin(navController, Icons.Filled.Person, "Criar Professor", "createTeacher", Modifier.weight(1f))
                 CardAdmin(navController, Icons.Filled.EmojiEvents, "Torneios", "exploreTourneys", Modifier.weight(1f))
             }
+            CardAdmin(navController, Icons.Filled.QueryStats, "Dashboard", "adminDashboard", Modifier.weight(1f))
         }
     }
 }

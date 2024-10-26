@@ -19,6 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.uri.bolanope.activities.admin.AdminDashboard
+import com.uri.bolanope.activities.admin.UsersActivity
 import com.uri.bolanope.activities.common.HomeAdmin
 import com.uri.bolanope.activities.common.HomePage
 import com.uri.bolanope.activities.common.Welcome
@@ -225,6 +227,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("createTeacher") {
                             CreateTeacherActivity(navController)
+                        }
+                        composable("adminDashboard") {
+                            AdminDashboard(navController)
+                        }
+                        composable("users") {
+                            UsersActivity(navController)
                         }
                     }
                 }
