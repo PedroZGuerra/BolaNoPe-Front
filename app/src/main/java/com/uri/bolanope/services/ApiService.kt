@@ -5,8 +5,10 @@ import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.model.StudentModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
@@ -234,4 +236,10 @@ interface ApiService {
         @Path("id")
         id: String
     ): Call<NotificationModel>
+
+    @POST("student")
+    fun createStudent(
+        @Body
+        body: RegisterStudentModel,
+    ): Call<StudentModel>
 }

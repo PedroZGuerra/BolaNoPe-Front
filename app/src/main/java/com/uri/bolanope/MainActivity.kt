@@ -27,6 +27,7 @@ import com.uri.bolanope.activities.field.FieldHistory
 import com.uri.bolanope.activities.field.Fields
 import com.uri.bolanope.activities.field.ReserveField
 import com.uri.bolanope.activities.teacher.CreateTeacherActivity
+import com.uri.bolanope.activities.teacher.RegisterStudentActivity
 import com.uri.bolanope.activities.teacher.TeacherActivity
 import com.uri.bolanope.activities.team.CreateTeam
 import com.uri.bolanope.activities.team.EditTeam
@@ -225,6 +226,16 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("createTeacher") {
                             CreateTeacherActivity(navController)
+                        }
+
+                        composable (
+                            route = "registerStudent/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                            ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            RegisterStudentActivity(navController, id!!)
                         }
                     }
                 }
