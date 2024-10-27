@@ -76,6 +76,7 @@ fun UserProfile(navController: NavHostController, userId: String?) {
     val context = LocalContext.current
 
     val userId = SharedPreferencesManager.getUserId(context)
+    val userRole = SharedPreferencesManager.getUserRole(context)
 
     var showDialog by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
@@ -290,6 +291,15 @@ fun UserProfile(navController: NavHostController, userId: String?) {
 
                     Spacer(modifier = Modifier.height(32.dp))
 
+                    if (userRole == "admin") {
+                        Button(
+                            onClick = {
+                                navController.navigate("homeAdmin")
+                            }, modifier = Modifier.width(150.dp)
+                        ) {
+                            Text("Home do Admin")
+                        }
+                    }
                     Button(
                         onClick = {
                             val userModel = UserModel(
