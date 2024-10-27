@@ -7,8 +7,10 @@ import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.model.StudentModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
@@ -282,4 +284,10 @@ interface ApiService {
 
     @GET("reserve/most-reserved-times")
     fun getMostReservedTimes(): Call<List<MostReservedTimesModel>>
+
+    @POST("student")
+    fun createStudent(
+        @Body
+        body: RegisterStudentModel,
+    ): Call<StudentModel>
 }
