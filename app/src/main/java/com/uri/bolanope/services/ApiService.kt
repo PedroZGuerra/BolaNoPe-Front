@@ -63,11 +63,16 @@ interface ApiService {
         @Path("id") id: String,
         @Part("email") email: RequestBody,
         @Part("name") name: RequestBody,
-        @Part("password") password: RequestBody,
-        @Part("cpf") cpf: RequestBody,
         @Part("birth") birth: RequestBody,
         @Part("cep") cep: RequestBody,
         @Part file_url: MultipartBody.Part?,
+    ): Call<UserModel>
+
+    @Multipart
+    @PUT("user/{id}")
+    fun changeUserPassword(
+        @Path("id") id: String,
+        @Part("password") password: RequestBody,
     ): Call<UserModel>
 
     @DELETE("user/{id}")

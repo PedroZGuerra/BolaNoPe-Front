@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -56,6 +57,7 @@ import com.uri.bolanope.activities.field.getFileName
 import com.uri.bolanope.utils.MaskVisualTransformation
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.CreateUserResponseModel
+import com.uri.bolanope.model.EditUserModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
@@ -72,6 +74,7 @@ import java.io.InputStream
 fun UserProfile(navController: NavHostController, userId: String?) {
     val activityMode = if (userId.isNullOrEmpty()) "CREATE" else "UPDATE"
     val topBarTitle = if (userId.isNullOrEmpty()) "Cadastro" else "Editar Perfil"
+    val isCreate = userId.isNullOrEmpty()
 
     val context = LocalContext.current
 
@@ -192,19 +195,20 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                 )
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Senha") },
-                    visualTransformation = PasswordVisualTransformation()
-                )
-
-                OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Nome") }
                 )
+
+                if (isCreate) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { name = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Senha") }
+                    )
+                }
 
                 OutlinedTextField(
                     value = cpf,
@@ -302,20 +306,11 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     }
                     Button(
                         onClick = {
-                            val userModel = UserModel(
-                                _id = null,
+                            val userModel = EditUserModel(
                                 name = name,
-                                cpf = cpf,
                                 birth = birth,
                                 email = email,
-                                password = password,
                                 cep = cep,
-                                role = null,
-                                patio = null,
-                                complement = null,
-                                neighborhood = null,
-                                locality = null,
-                                uf = null,
                                 image = null
                             )
 
@@ -327,7 +322,16 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                         Text("Finalizar edição")
                     }
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    Button(
+                        onClick = {
+                            navController.navigate("changePassword/$userId")
+                        },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text("Mudar Senha")
+                    }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(32.dp)
@@ -336,6 +340,10 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                             onClick = {
                                 showDialog = true
                             },
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            ),
                             modifier = Modifier.width(150.dp)
                         ) {
                             Text("Apagar conta")
@@ -445,7 +453,7 @@ fun getUserById(id: String, callback: (UserModel?) -> Unit) {
 fun onClickButtonUpdateUser(
     id: String,
     context: Context,
-    userModel: UserModel,
+    userModel: EditUserModel,
     imageUri: Uri?,
     callback: (UserModel?) -> Unit
 ) {
@@ -467,20 +475,16 @@ fun onClickButtonUpdateUser(
 
     val emailPart = userModel.email.toRequestBody("text/plain".toMediaTypeOrNull())
     val namePart = userModel.name.toRequestBody("text/plain".toMediaTypeOrNull())
-    val passwordPart = userModel.password.toRequestBody("text/plain".toMediaTypeOrNull())
-    val cpfPart = userModel.cpf.toRequestBody("text/plain".toMediaTypeOrNull())
     val birthPart = userModel.birth.toRequestBody("text/plain".toMediaTypeOrNull())
     val cepPart = userModel.cep.toRequestBody("text/plain".toMediaTypeOrNull())
 
     val call = ApiClient.apiService.putUserById(
-        id,
-        emailPart,
-        namePart,
-        passwordPart,
-        cpfPart,
-        birthPart,
-        cepPart,
-        imagePart
+        id = id,
+        email = emailPart,
+        name = namePart,
+        birth = birthPart,
+        cep = cepPart,
+        file_url = imagePart,
     )
     apiCall(call, callback)
 }
