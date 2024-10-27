@@ -1,6 +1,7 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.AcceptRequestBody
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
@@ -13,6 +14,7 @@ import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.model.addTeamToTourneyBody
+import com.uri.bolanope.model.getNumberOfTeamRequestsModel
 import com.uri.bolanope.model.tourneyAverageParticipantsModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -185,6 +187,14 @@ interface ApiService {
         authHeader: String
     ): Call<List<RequestModel>>
 
+    @GET("request/pending/{id}")
+    fun getNumberOfTeamRequests(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<getNumberOfTeamRequestsModel>
+
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
 
@@ -242,6 +252,30 @@ interface ApiService {
         @Path("id")
         id: String
     ): Call<NotificationModel>
+
+    @GET("comment/team/{id}")
+    fun getComments(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<List<CommentModel>>
+
+    @POST("comment/")
+    fun createComment(
+        @Body
+        body: CommentModel,
+        @Header("Authorization")
+        token: String
+    ): Call<CommentModel>
+
+    @DELETE("comment/{id}")
+    fun deleteComment(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<Void>
 
     @GET("tourney/average-participants")
     fun getTourneyAverage(): Call<tourneyAverageParticipantsModel>
