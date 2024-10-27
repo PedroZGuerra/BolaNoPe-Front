@@ -19,6 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.uri.bolanope.activities.admin.AdminDashboard
+import com.uri.bolanope.activities.admin.UsersActivity
 import com.uri.bolanope.activities.common.HomeAdmin
 import com.uri.bolanope.activities.common.HomePage
 import com.uri.bolanope.activities.common.Welcome
@@ -40,6 +42,7 @@ import com.uri.bolanope.activities.tourney.EditTourney
 import com.uri.bolanope.activities.tourney.ExploreTourneys
 import com.uri.bolanope.activities.tourney.Tourney
 import com.uri.bolanope.activities.user.Login
+import com.uri.bolanope.activities.user.NotificationPage
 import com.uri.bolanope.activities.user.UserProfile
 import com.uri.bolanope.services.NotificationWorker
 import com.uri.bolanope.ui.theme.BolaNoPeTheme
@@ -226,6 +229,15 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("createTeacher") {
                             CreateTeacherActivity(navController)
+                        }
+                        composable("adminDashboard") {
+                            AdminDashboard(navController)
+                        }
+                        composable("users") {
+                            UsersActivity(navController)
+                        }
+                        composable("notifications") {
+                            NotificationPage(navController)
                         }
 
                         composable (

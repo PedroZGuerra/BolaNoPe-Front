@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,15 +20,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.activities.field.base64ToBitmap
-import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.activities.user.getUserById
+import com.uri.bolanope.components.CommentCard
+import com.uri.bolanope.components.CreateComment
+import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.RequestBody
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.UserModel
+import com.uri.bolanope.model.getNumberOfTeamRequestsModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
+import java.time.LocalTime
 
 @Composable
 fun Team(navController: NavHostController, teamId: String?) {
@@ -37,6 +44,10 @@ fun Team(navController: NavHostController, teamId: String?) {
     var leader_id by remember { mutableStateOf<String>("") }
     val user_token = SharedPreferencesManager.getToken(context)
     val showDeleteDialog = remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    val numberOfRequests = remember { mutableStateOf(0) }
+
+    val commentArray = remember { mutableStateListOf<CommentModel>() }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
@@ -56,6 +67,16 @@ fun Team(navController: NavHostController, teamId: String?) {
                     Toast.makeText(context, "Falha ao carregar o time.", Toast.LENGTH_LONG).show()
                 }
             }
+            getCommentsByTeamId(teamId, user_token!!) { result ->
+                if (result != null) {
+                    commentArray.clear()
+                    commentArray.addAll(result)
+                    Log.d("tag", "${commentArray}, $result")
+                }else {
+                    Log.d("tag", "no comments here")
+
+                }
+            }
         }
     }
 
@@ -63,129 +84,170 @@ fun Team(navController: NavHostController, teamId: String?) {
         topBar = { team.value?.let { TopBar(it.name!!) } },
         content = { paddingValues ->
             if (team.value != null) {
-                Column(
+                LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                    item {
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
-                            Text(
-                                text = "Descrição:",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = team.value?.description ?: "",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Descrição:",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = team.value?.description ?: "",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    item {
+                        Text(text = "Participantes:", style = MaterialTheme.typography.titleMedium)
+                    }
 
-                    Text(text = "Participantes:", style = MaterialTheme.typography.titleMedium)
+                    items(members.size) { index ->
+                        val member = members[index]
+                        var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+                        imageBitmap = member.image?.let { base64ToBitmap(it) }
+                        val isLeader = member._id?.equals(leader_id) == true
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        val sortedMembers = members.sortedBy { if (it._id == leader_id) 0 else 1 }
-
-                        items(sortedMembers.size) { index ->
-                            val member = sortedMembers[index]
-                            var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-                            imageBitmap = member.image?.let { base64ToBitmap(it) }
-                            val isLeader = member._id?.equals(leader_id) == true
-
-                            Card(
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp)
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.Start
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    imageBitmap?.let {
-                                        Image(
-                                            bitmap = it.asImageBitmap(),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .padding(end = 8.dp),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
-                                    Column {
-                                        Text(text = member.name)
-                                        Text(text = if (isLeader) "Líder" else "Membro")
-                                    }
+                                imageBitmap?.let {
+                                    Image(
+                                        bitmap = it.asImageBitmap(),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .padding(end = 8.dp),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                Column {
+                                    Text(text = member.name)
+                                    Text(text = if (isLeader) "Líder" else "Membro")
                                 }
                             }
                         }
                     }
 
-                    if (team.value?.members_id?.contains(user_id) == false) {
-                        Button(
-                            onClick = {
-                                Log.d("TAG", "Team: entrar no time mt fera")
-                                createTeamRequest(teamId!!, user_token!!){ result ->
-                                    Log.d("TAG", "$teamId, $user_token")
-                                    if (result != null) {
-                                        Toast.makeText(context, "Pedido enviado com sucesso!", Toast.LENGTH_LONG).show()
-                                    }else {
-                                        Toast.makeText(context, "Erro ao enviar pedido", Toast.LENGTH_LONG).show()
+                    item {
+                        if (team.value?.members_id?.contains(user_id) == false) {
+                            Button(
+                                onClick = {
+                                    createTeamRequest(teamId!!, user_token!!) { result ->
+                                        if (result != null) {
+                                            Toast.makeText(context, "Pedido enviado com sucesso!", Toast.LENGTH_LONG).show()
+                                        } else {
+                                            Toast.makeText(context, "Erro ao enviar pedido", Toast.LENGTH_LONG).show()
+                                        }
                                     }
-                                }
-                            },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            Text("Quero participar")
+                                },
+                            ) {
+                                Text("Quero participar")
+                            }
                         }
                     }
-
 
                     if (user_id == team.value?.leader_id) {
-                        Column{
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Button(onClick = {
-                                    navController.navigate("editTeam/$teamId")
-                                }) {
-                                    Text("Editar Time")
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Button(
-                                    onClick = {
-                                        showDeleteDialog.value = true
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                        item {
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
-                                    Text("Deletar Time")
+                                    Button(onClick = {
+                                        navController.navigate("editTeam/$teamId")
+                                    }) {
+                                        Text("Editar Time")
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Button(
+                                        onClick = {
+                                            showDeleteDialog.value = true
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                                    ) {
+                                        Text("Deletar Time")
+                                    }
                                 }
-                            }
-                            Button(
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                onClick = {
-                                    navController.navigate("teamRequests/${team.value!!._id}")
+                                Button(
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    onClick = {
+                                        navController.navigate("teamRequests/${team.value!!._id}")
+                                    }
+                                ) {
+                                    getNumberOfTeamRequests(teamId!!, user_token!!) { number ->
+                                        if (number != null) {
+                                            Log.d("TAG", "$number")
+                                            numberOfRequests.value = number.pendingRequests!!
+                                        }
+                                    }
+                                    Text("Visualizar pedidos de entrada (${numberOfRequests.value})")
                                 }
-                            ){
-                                Text("Visualizar pedidos de entrada")
                             }
                         }
                     }
+
+                    item {
+                        CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
+                          commentArray.add(
+                              CommentModel(
+                                  _id = "null",
+                                  comment = newComment,
+                                  team_id = teamId,
+                                  user_id = user_id,
+                                  created_at = "agora"
+                              )
+                          )
+                        }
+                    }
+
+                    if (commentArray.isNotEmpty()) {
+                        item {
+                            Text(text = "Comentários:", style = MaterialTheme.typography.titleMedium)
+                        }
+                        items(commentArray.reversed()) { comment ->
+                            CommentCard(
+                                userId = comment.user_id,
+                                commentText = comment.comment,
+                                commentId = comment._id!!,
+                                time = comment.created_at,
+                                onDeleteComment = {
+                                    deleteComment(comment._id!!, user_token!!) { result ->
+                                        Toast.makeText(
+                                            context,
+                                            "Comentário deletado com sucesso.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    commentArray.remove(comment)
+                                }
+                            )
+                        }
+                    }
+
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -245,5 +307,20 @@ fun createTeamRequest(teamId: String, authHeader: String, callback: (RequestMode
     )
 
     val call = ApiClient.apiService.createTeamRequest(requestBody, "Bearer $authHeader")
+    apiCall(call, callback)
+}
+
+fun getCommentsByTeamId(team_id: String, token: String, callback: (List<CommentModel>?) -> Unit) {
+    val call = ApiClient.apiService.getComments(team_id, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun getNumberOfTeamRequests(team_id: String, token: String, callback: (getNumberOfTeamRequestsModel?) -> Unit) {
+    val call = ApiClient.apiService.getNumberOfTeamRequests(team_id, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun deleteComment(id: String, authHeader: String, callback: (Void?) -> Unit) {
+    val call = ApiClient.apiService.deleteComment(id, "Bearer $authHeader")
     apiCall(call, callback)
 }

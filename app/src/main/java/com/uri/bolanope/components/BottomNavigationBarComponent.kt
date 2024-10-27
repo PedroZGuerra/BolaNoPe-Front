@@ -10,6 +10,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +40,12 @@ fun BottomNavigationBar(navController: NavHostController) {
             onClick = { onClickHome(navController) }
         )
         BottomNavigationItem(
+            icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificações", tint= Color.White) },
+            label = { Text("Notificações", color= Color.White) },
+            selected = false,
+            onClick = { onClickNotification(navController) }
+        )
+        BottomNavigationItem(
             icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Profile", tint= Color.White) },
             label = { Text("Perfil", color= Color.White) },
             selected = false,
@@ -58,5 +65,9 @@ fun onClickProfile(navController: NavHostController, context: Context) {
 
 fun onClickHome(navController: NavHostController){
     navController.navigate("home")
+}
+
+fun onClickNotification(navController: NavHostController){
+    navController.navigate("notifications")
 }
 
