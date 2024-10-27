@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.activities.field.getFileName
+import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
@@ -89,6 +90,9 @@ fun CreateTeacherActivity(navController: NavHostController) {
     val horario_len = 2
 
     Scaffold(
+        topBar = {
+            TopBar("Criar Professor")
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)

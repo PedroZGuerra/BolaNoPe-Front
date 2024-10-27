@@ -1,17 +1,23 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.AcceptRequestBody
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
+import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
+import com.uri.bolanope.model.StudentModel
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.model.addTeamToTourneyBody
+import com.uri.bolanope.model.getNumberOfTeamRequestsModel
+import com.uri.bolanope.model.tourneyAverageParticipantsModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -25,10 +31,16 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @GET("user/")
     fun getAllUsers(): Call<List<UserModel>>
+
+    @GET("user/")
+    fun getAllUsersByRole(
+        @Query("role") role: String,
+    ): Call<List<UserModel>>
 
     @GET("user/{id}")
     fun getUserById(@Path("id") id: String): Call<UserModel>
@@ -182,6 +194,14 @@ interface ApiService {
         authHeader: String
     ): Call<List<RequestModel>>
 
+    @GET("request/pending/{id}")
+    fun getNumberOfTeamRequests(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        authHeader: String
+    ): Call<getNumberOfTeamRequestsModel>
+
     @GET("tourney/")
     fun getAllTourneys(): Call<List<TourneyModel>>
 
@@ -239,4 +259,40 @@ interface ApiService {
         @Path("id")
         id: String
     ): Call<NotificationModel>
+
+    @GET("comment/team/{id}")
+    fun getComments(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<List<CommentModel>>
+
+    @POST("comment/")
+    fun createComment(
+        @Body
+        body: CommentModel,
+        @Header("Authorization")
+        token: String
+    ): Call<CommentModel>
+
+    @DELETE("comment/{id}")
+    fun deleteComment(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<Void>
+
+    @GET("tourney/average-participants")
+    fun getTourneyAverage(): Call<tourneyAverageParticipantsModel>
+
+    @GET("reserve/most-reserved-times")
+    fun getMostReservedTimes(): Call<List<MostReservedTimesModel>>
+
+    @POST("student")
+    fun createStudent(
+        @Body
+        body: RegisterStudentModel,
+    ): Call<StudentModel>
 }
