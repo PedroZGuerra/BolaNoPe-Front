@@ -3,6 +3,7 @@ package com.uri.bolanope.activities.tourney
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,14 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.TourneyModel
+import com.uri.bolanope.model.tourneyAverageParticipantsModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
-fun ExploreTourneys(navController: NavHostController){
+fun ExploreTourneys(navController: NavHostController) {
     val tourneys = remember { mutableStateOf<List<TourneyModel>?>(null) }
+    val tourneyAverage = remember { mutableStateOf<Float>(0f) }
     val context = LocalContext.current
     val userRole = SharedPreferencesManager.getUserRole(context)
 
@@ -51,13 +54,19 @@ fun ExploreTourneys(navController: NavHostController){
                 Toast.makeText(context, "Falha ao carregar os torneios.", Toast.LENGTH_LONG).show()
             }
         }
+        getTourneyAverage { result ->
+            if (result != null) {
+                tourneyAverage.value = result.averageParticipants
+            } else {
+                Toast.makeText(context, "Falha ao carregar a média de times por torneio.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
-
 
     Scaffold(
         topBar = { TopBar("Torneios") },
         floatingActionButton = {
-            if (userRole == "admin"){
+            if (userRole == "admin") {
                 FloatingActionButton(
                     modifier = Modifier
                         .padding(vertical = 16.dp),
@@ -66,33 +75,41 @@ fun ExploreTourneys(navController: NavHostController){
                     },
                     containerColor = Green80,
                     shape = CircleShape
-
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add Tourney", tint = Color.White)
                 }
             }
         },
         content = { paddingValues ->
-            tourneys.value?.let { tourneyList ->
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                ) {
-                    items(tourneyList) { tourney ->
-                        TourneyCard(tourney, navController)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (userRole == "admin") {
+                    Text(
+                        text = "Média de Times por Torneio: ${tourneyAverage.value}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                tourneys.value?.let { tourneyList ->
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(tourneyList) { tourney ->
+                            TourneyCard(tourney, navController)
+                        }
+                    }
+                } ?: run {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
                 }
-            } ?: run {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
             }
-
         }
     )
 }
-
 @Composable
 fun TourneyCard(tourney: TourneyModel, navController: NavHostController){
     Card(
@@ -127,5 +144,9 @@ fun TourneyCard(tourney: TourneyModel, navController: NavHostController){
 
 fun getAllTourneys(callback: (List<TourneyModel>?) -> Unit) {
     val call = ApiClient.apiService.getAllTourneys()
+    apiCall(call, callback)
+}
+fun getTourneyAverage(callback: (tourneyAverageParticipantsModel?) -> Unit) {
+    val call = ApiClient.apiService.getTourneyAverage()
     apiCall(call, callback)
 }
