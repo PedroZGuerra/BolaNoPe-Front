@@ -74,6 +74,7 @@ import java.io.InputStream
 fun UserProfile(navController: NavHostController, userId: String?) {
     val activityMode = if (userId.isNullOrEmpty()) "CREATE" else "UPDATE"
     val topBarTitle = if (userId.isNullOrEmpty()) "Cadastro" else "Editar Perfil"
+    val isCreate = userId.isNullOrEmpty()
 
     val context = LocalContext.current
 
@@ -199,6 +200,15 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Nome") }
                 )
+
+                if (isCreate) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { name = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Senha") }
+                    )
+                }
 
                 OutlinedTextField(
                     value = cpf,
