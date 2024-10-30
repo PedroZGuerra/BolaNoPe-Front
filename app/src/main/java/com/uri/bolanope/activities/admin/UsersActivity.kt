@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,8 +27,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.components.PieChart
+import com.uri.bolanope.components.PieChartData
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
@@ -38,6 +42,13 @@ import com.uri.bolanope.services.apiCall
 @Composable
 fun UsersActivity(navController: NavHostController) {
     val users = remember { mutableStateOf<List<UserModel>?>(null) }
+    val context = LocalContext.current
+
+    val regularUsers = remember { mutableStateOf<List<UserModel>?>(null) }
+    val adminUsers = remember { mutableStateOf<List<UserModel>?>(null) }
+    val teacherUsers = remember { mutableStateOf<List<UserModel>?>(null) }
+
+    val showChart = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { TopBar("Usuários") },
@@ -47,17 +58,42 @@ fun UsersActivity(navController: NavHostController) {
             .systemBarsPadding(),
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            RoleDropdown(users)
+            RoleDropdown(users, showChart)
 
-            users.value?.forEach { user ->
-                UserCard(user)
+            val pieChartDataUsers = listOf(
+                PieChartData("Professor", teacherUsers.value?.size?.toFloat() ?: 0F),
+                PieChartData("Usuário Normal", regularUsers.value?.size?.toFloat() ?: 0F),
+                PieChartData("Admin", adminUsers.value?.size?.toFloat() ?: 0F),
+            )
+            val options = hashMapOf(
+                "user" to "Usuário Normal",
+                "admin" to "Admin",
+                "professor" to "Professor"
+            )
+            if (showChart.value) {
+                options.forEach { (key, value) ->
+                    getAllUsersByRole(key) { result ->
+                        when (key) {
+                            "user" -> regularUsers.value = result
+                            "admin" -> adminUsers.value = result
+                            "professor" -> teacherUsers.value = result
+                        }
+                    }
+                }
+                Box(modifier = Modifier.padding(16.dp)) {
+                    PieChart("", pieChartDataUsers, context)
+                }
+            } else {
+                users.value?.forEach { user ->
+                    UserCard(user)
+                }
             }
         }
     }
 }
 
 @Composable
-fun RoleDropdown(users: MutableState<List<UserModel>?>) {
+fun RoleDropdown(users: MutableState<List<UserModel>?>, showChart: MutableState<Boolean>) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Selecione uma opção") }
 
@@ -93,6 +129,7 @@ fun RoleDropdown(users: MutableState<List<UserModel>?>) {
                     onClick = {
                         selectedOption = value
                         expanded = false
+                        showChart.value = false
                         getAllUsersByRole(key) { result ->
                             users.value = result
                         }
@@ -102,10 +139,20 @@ fun RoleDropdown(users: MutableState<List<UserModel>?>) {
                         .padding(8.dp)
                 )
             }
+            DropdownMenuItem(
+                text = { Text("Gráfico") },
+                onClick = {
+                    selectedOption = "Gráfico"
+                    expanded = false
+                    showChart.value = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
         }
     }
 }
-
 @Composable
 fun UserCard(userModel: UserModel) {
     Card(
