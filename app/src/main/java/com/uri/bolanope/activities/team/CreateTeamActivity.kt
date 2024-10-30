@@ -167,13 +167,13 @@ fun CreateTeam(navController: NavHostController) {
                         }
 
                         teamModel.members_id?.forEach { member ->
-                            createNotification(member, teamName) { result ->
-                                if (result != null) {
-                                    Toast.makeText(context, "notificacao Criado com sucesso", Toast.LENGTH_LONG).show()
-                                } else {
-                                    Toast.makeText(context, "Falha ao criar notificacao", Toast.LENGTH_LONG).show()
+                            if(member != userId){
+                                createNotification(member, teamName) { result ->
+                                    if (result != null) {
+                                    } else {
+                                        Toast.makeText(context, "Falha ao criar Notificação", Toast.LENGTH_LONG).show()
+                                    }
                                 }
-
                             }
                         }
                     }
