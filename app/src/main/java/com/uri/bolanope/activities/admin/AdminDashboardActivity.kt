@@ -27,7 +27,7 @@ fun AdminDashboard(navController: NavHostController) {
     ) { innerPadding ->
         Column {
             Row {
-                CardAdmin(navController, icon = Icons.Default.Person, "Usuários por tipo", "users")
+                CardAdmin(navController, icon = Icons.Default.Person, "Usuários por idade", "users")
             }
             Row {
                 CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times por Torneio", "teamsByTourney")
