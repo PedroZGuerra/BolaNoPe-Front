@@ -16,15 +16,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.uri.bolanope.activities.tourney.getAllTourneys
-import com.uri.bolanope.components.PieChart
+import com.uri.bolanope.components.BarChartComposable
 import com.uri.bolanope.components.PieChartData
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.TourneyModel
 
+
 @Composable
 fun TeamsByTourney(navController: NavHostController) {
     val context = LocalContext.current
-
     val tourneys = remember { mutableStateOf<List<TourneyModel>?>(null) }
 
     LaunchedEffect(tourneys) {
@@ -32,7 +32,8 @@ fun TeamsByTourney(navController: NavHostController) {
             tourneys.value = result
         }
     }
-    val pieChartTeamsByTourney = tourneys.value?.map { tourney ->
+
+    val barChartData = tourneys.value?.map { tourney ->
         PieChartData(tourney.name, tourney.id_teams.size.toFloat())
     } ?: emptyList()
 
@@ -42,10 +43,10 @@ fun TeamsByTourney(navController: NavHostController) {
             .fillMaxSize()
             .background(Color.White)
             .systemBarsPadding(),
-    ){ innerPadding ->
-        if (pieChartTeamsByTourney.isNotEmpty()) {
+    ) { innerPadding ->
+        if (barChartData.isNotEmpty()) {
             Box(modifier = Modifier.padding(16.dp)) {
-                PieChart("Times por Torneio", pieChartTeamsByTourney, context)
+                BarChartComposable(barChartData, context)
             }
         }
     }

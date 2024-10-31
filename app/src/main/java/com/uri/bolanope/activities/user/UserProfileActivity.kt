@@ -204,8 +204,9 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                 if (isCreate) {
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { name = it },
+                        onValueChange = { password = it },
                         modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                         label = { Text("Senha") }
                     )
                 }
