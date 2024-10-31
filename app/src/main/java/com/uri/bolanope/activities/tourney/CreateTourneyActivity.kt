@@ -156,9 +156,8 @@ fun CreateTourney(navController: NavHostController) {
                         )
                         createTourney(tourneyModel, userToken!!) { response ->
                             if (response != null) {
-                                Log.d("log fodinhaaaaa", "Tourney created: ${response}")
                                 Toast.makeText(context, "Torneio Criado com sucesso", Toast.LENGTH_LONG).show()
-                                navController.navigate("home")
+                                navController.navigate("homeAdmin")
                             } else {
                                 Log.d("log fodinhaaaaa", "Failed to create tourney: ${response}")
                                 Toast.makeText(context, "Falha ao criar torneio", Toast.LENGTH_LONG).show()

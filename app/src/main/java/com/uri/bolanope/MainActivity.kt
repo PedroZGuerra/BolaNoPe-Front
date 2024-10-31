@@ -20,6 +20,7 @@ import androidx.navigation.navArgument
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.uri.bolanope.activities.admin.AdminDashboard
+import com.uri.bolanope.activities.admin.TeamsByTourney
 import com.uri.bolanope.activities.admin.UsersActivity
 import com.uri.bolanope.activities.common.HomeAdmin
 import com.uri.bolanope.activities.common.HomePage
@@ -260,6 +261,10 @@ class MainActivity : ComponentActivity() {
                             ) { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")
                             RegisterStudentActivity(navController, id!!)
+                        }
+
+                        composable("teamsByTourney") {
+                            TeamsByTourney(navController)
                         }
                     }
                 }
