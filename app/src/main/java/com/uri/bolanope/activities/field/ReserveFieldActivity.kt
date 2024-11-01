@@ -163,13 +163,16 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
             ) {
-//                Button(
-//                    onClick = {
-//                        navController.navigate("fieldHistory/${fieldId}")
-//                    },
-//                ) {
-//                    Text("Histórico")
-//                }
+                if (userRole == "admin"){
+                    Button(
+                        onClick = {
+                            navController.navigate("fieldHistory/${fieldId}")
+                        },
+                    ) {
+                        Text("Histórico")
+                    }
+
+                }
 
                 Spacer(modifier = Modifier.width(16.dp))
 

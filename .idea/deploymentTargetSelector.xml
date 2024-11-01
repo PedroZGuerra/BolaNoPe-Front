@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-23T17:24:48.858729770Z">
+        <DropdownSelection timestamp="2024-11-01T17:30:58.786638013Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RX8WA05LGZT" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/home/otavio/.android/avd/phone_pog_API_35.avd" />
             </handle>
           </Target>
         </DropdownSelection>
