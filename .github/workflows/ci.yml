@@ -1,0 +1,52 @@
+name: Android CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      JAVA_VERSION: '22'
+      ANDROID_COMPILE_SDK: 34
+      ANDROID_BUILD_TOOLS: '33.0.2'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: ${{ env.JAVA_VERSION }}
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: ${{ env.ANDROID_COMPILE_SDK }}
+        build-tools: ${{ env.ANDROID_BUILD_TOOLS }}
+        cache: gradle
+    
+    - name: Grant execution permission for gradlew
+      run: chmod +x ./gradlew
+
+    - name: Run unit tests
+      run: ./gradlew testDebugUnitTest
+      continue-on-error: false
+      
+    - name: Build app
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
