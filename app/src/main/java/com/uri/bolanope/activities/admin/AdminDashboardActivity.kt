@@ -30,7 +30,7 @@ fun AdminDashboard(navController: NavHostController) {
                 CardAdmin(navController, icon = Icons.Default.Person, "Usuários por idade", "users")
             }
             Row {
-                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times por Torneio", "teamsByTourney")
+                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times Inscritos por Torneio", "teamsByTourney")
             }
         }
     }
