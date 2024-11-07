@@ -7,6 +7,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -32,6 +35,8 @@ import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -237,20 +243,21 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Text(text = "Escolha os horários", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
-                    TimeSelectionButton(
+                    TimeSelectionDropdown(
                         selectedTime = start_time_selected,
                         onTimeSelected = { start_time_selected = it },
-                        context = context
+                        startTime = field.open_time,
+                        endTime = field.close_time
                     )
                     Text(text = " - ", style = MaterialTheme.typography.h6)
-                    TimeSelectionButton(
+                    TimeSelectionDropdown(
                         selectedTime = end_time_selected,
                         onTimeSelected = { end_time_selected = it },
-                        context = context
+                        startTime = field.open_time,
+                        endTime = field.close_time
                     )
                 }
 
@@ -280,7 +287,6 @@ fun ReservePopup(onDismiss: () -> Unit, field: FieldModel, fieldId: String?) {
                                 Toast.makeText(context, "Falha ao criar reserva", Toast.LENGTH_LONG).show()
                             }
                         }
-
                     }
                 ) {
                     Text("Confirmar")
@@ -378,4 +384,78 @@ fun TimeSelectionButton(
         Text(text = if (selectedTime.isNotEmpty()) selectedTime else "Nenhum horário selecionado")
         Spacer(modifier = Modifier.height(8.dp))
     }
+}
+
+@Composable
+fun TimeSelectionDropdown(
+    selectedTime: String,
+    onTimeSelected: (String) -> Unit,
+    startTime: String,
+    endTime: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val timeOptions = generateTimeSlots(startTime, endTime, intervalMinutes = 60)
+
+    Column(modifier = Modifier.clickable { expanded = true }) {
+        Text(
+            text = if (selectedTime.isNotEmpty()) selectedTime else "Nenhum horário selecionado",
+            style = MaterialTheme.typography.body1.copy(textDecoration = TextDecoration.Underline)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        val sizeOfOneItem by remember {
+            mutableStateOf(50.dp)
+        }
+        val configuration = LocalConfiguration.current
+        val screenHeight50 by remember {
+            val screenHeight = configuration.screenHeightDp.dp
+            mutableStateOf(screenHeight / 2)
+        }
+        val height by remember(timeOptions.size) {
+            val itemsSize = sizeOfOneItem * timeOptions.size
+            mutableStateOf(minOf(itemsSize, screenHeight50))
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(Color.White)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .width(70.dp)
+                    .height(height)
+            ) {
+                items(timeOptions) { time ->
+                    DropdownMenuItem(
+                        onClick = {
+                            onTimeSelected(time)
+                            expanded = false
+                        },
+                        text = {
+                            Text(text = time)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int): List<String> {
+    val timeSlots = mutableListOf<String>()
+    val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val calendar = Calendar.getInstance()
+
+    val start = dateFormat.parse(startTime)
+    val end = dateFormat.parse(endTime)
+    if (start != null && end != null) {
+        calendar.time = start
+        while (!calendar.time.after(end)) {
+            timeSlots.add(dateFormat.format(calendar.time))
+            calendar.add(Calendar.MINUTE, intervalMinutes)
+        }
+    }
+    return timeSlots
 }
