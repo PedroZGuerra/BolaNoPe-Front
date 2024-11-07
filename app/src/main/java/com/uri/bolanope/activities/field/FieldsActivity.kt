@@ -62,7 +62,8 @@ fun Fields(navController: NavHostController) {
         }
         getMostReservedTimes { result ->
             if (result != null) {
-                val timesMap = result.associate { it.id_field to it.most_reserved_time }
+                Log.d("TAG", "Fields: $result")
+                val timesMap = result.associate { it.id_field to it.most_reserved_times[0].time }
                 mostReservedTimes.value = timesMap
             } else {
                 Toast.makeText(context, "Falha ao carregar os horários mais reservados", Toast.LENGTH_LONG).show()
