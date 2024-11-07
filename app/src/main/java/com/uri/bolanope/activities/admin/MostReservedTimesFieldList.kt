@@ -1,8 +1,7 @@
-package com.uri.bolanope.activities.field
+package com.uri.bolanope.activities.admin
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -21,6 +19,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,18 +35,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.activities.field.deleteFieldById
+import com.uri.bolanope.activities.field.getAllFields
+import com.uri.bolanope.activities.field.getMostReservedTimes
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.MostReservedTimesModel
-import com.uri.bolanope.services.ApiClient
-import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
 
 @Composable
-fun Fields(navController: NavHostController) {
+fun MostReservedTimesFieldList(navController: NavHostController) {
     val fields = remember { mutableStateOf<List<FieldModel>?>(null) }
     val context = LocalContext.current
-    val token = SharedPreferencesManager.getToken(context)
     var showDialog by remember { mutableStateOf(false) }
     var fieldToDelete by remember { mutableStateOf<FieldModel?>(null) }
     val mostReservedTimes = remember { mutableStateOf<Map<String, String>>(emptyMap()) }
@@ -74,16 +73,6 @@ fun Fields(navController: NavHostController) {
     Scaffold(
         topBar = { TopBar("Quadras") },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("field")
-                },
-                backgroundColor = Color(0xFF4CAF50),
-                contentColor = Color.White,
-                modifier = Modifier.size(72.dp)
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Adicionar campo")
-            }
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
@@ -103,7 +92,7 @@ fun Fields(navController: NavHostController) {
                                 .fillMaxWidth()
                                 .padding(8.dp),
                             onClick = {
-                                navController.navigate("reserveField/${field._id}")
+                                navController.navigate("most-reserved-times/${field._id}")
                             },
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
@@ -125,41 +114,6 @@ fun Fields(navController: NavHostController) {
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        Text(
-                                            text = "Horário mais reservado: ${mostReservedTimes.value[field._id] ?: "N/A"}",
-                                            style = MaterialTheme.typography.body2,
-                                            color = Color.Gray
-                                        )
-                                    }
-
-                                    Column(
-                                        modifier = Modifier.weight(0.5f),
-                                        horizontalAlignment = Alignment.End
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                                navController.navigate("field/${field._id}")
-                                            },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(0xFF4CAF50)
-                                            )
-                                        ) {
-                                            Text("Editar")
-                                        }
-
-                                        Button(
-                                            onClick = {
-                                                fieldToDelete = field
-                                                showDialog = true
-                                            },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(0xFFC8473F)
-                                            )
-                                        ) {
-                                            Text("Excluir")
-                                        }
                                     }
                                 }
                             }
@@ -170,48 +124,5 @@ fun Fields(navController: NavHostController) {
                 Text(text = "Carregando campos...")
             }
         }
-
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text("Confirmação de exclusão") },
-                text = { Text("Tem certeza de que deseja excluir esta quadra?") },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            fieldToDelete?._id?.let { fieldId ->
-                                deleteFieldById(fieldId, token) {
-                                    Log.d("field delete", "Fields: deletou")
-                                    fields.value = fields.value?.filterNot { it._id == fieldId }
-                                    showDialog = false
-                                }
-                            }
-                        }
-                    ) {
-                        Text("Confirmar")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("Cancelar")
-                    }
-                }
-            )
-        }
     }
-}
-
-fun getAllFields(callback: (List<FieldModel>?) -> Unit) {
-    val call = ApiClient.apiService.getAllFields()
-    apiCall(call, callback)
-}
-
-fun deleteFieldById(fieldId : String, token: String?, callback: (Void?) -> Unit){
-    val call = ApiClient.apiService.deleteField(fieldId, "Bearer $token")
-    apiCall(call, callback)
-}
-
-fun getMostReservedTimes(callback: (List<MostReservedTimesModel>?) -> Unit){
-    val call = ApiClient.apiService.getMostReservedTimes()
-    apiCall(call, callback)
 }
