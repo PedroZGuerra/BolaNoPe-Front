@@ -64,7 +64,7 @@ fun FieldHistory(navController: NavHostController, fieldId: String?) {
                 verticalArrangement = Arrangement.Top
             ) {
                 reserves.value?.let { reserveList ->
-                    reserveList.forEach { reserve ->
+                    reserveList.reversed().forEach { reserve ->
                         val reserveDayParsed = LocalDate.parse(reserve.reserve_day, dateFormatter)
 
                         val cardColor = if (reserveDayParsed.isBefore(today)) {
