@@ -20,6 +20,8 @@ import androidx.navigation.navArgument
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.uri.bolanope.activities.admin.AdminDashboard
+import com.uri.bolanope.activities.admin.MostReservedTimes
+import com.uri.bolanope.activities.admin.MostReservedTimesFieldList
 import com.uri.bolanope.activities.admin.TeamsByTourney
 import com.uri.bolanope.activities.admin.UsersActivity
 import com.uri.bolanope.activities.common.HomeAdmin
@@ -265,6 +267,18 @@ class MainActivity : ComponentActivity() {
 
                         composable("teamsByTourney") {
                             TeamsByTourney(navController)
+                        }
+                        composable (
+                            route = "most-reserved-times/{id}",
+                            arguments = listOf(
+                                navArgument("id") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            MostReservedTimes(navController, id!!)
+                        }
+                        composable("most-reserved-times-fields-list") {
+                            MostReservedTimesFieldList(navController)
                         }
                     }
                 }

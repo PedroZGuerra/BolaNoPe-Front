@@ -32,6 +32,9 @@ fun AdminDashboard(navController: NavHostController) {
             Row {
                 CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times Inscritos por Torneio", "teamsByTourney")
             }
+            Row {
+                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Horários mais reservados por quadra", "most-reserved-times-fields-list")
+            }
         }
     }
 }
