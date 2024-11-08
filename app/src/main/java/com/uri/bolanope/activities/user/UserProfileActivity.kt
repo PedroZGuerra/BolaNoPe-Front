@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -163,20 +163,27 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                                     .fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
-                        } else if (base64String != "") {
+                        } else if (base64String.isNotBlank()) {
                             val bitmap = base64ToBitmap(base64String)
-                            bitmap?.let {
+                            if (bitmap != null) {
                                 Image(
-                                    bitmap = it.asImageBitmap(),
+                                    bitmap = bitmap.asImageBitmap(),
                                     contentDescription = "Imagem Carregada",
                                     modifier = Modifier
                                         .fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
+                            } else {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = "Selecionar Imagem",
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(50.dp)
+                                )
                             }
                         } else {
                             Icon(
-                                Icons.Default.Add,
+                                Icons.Default.Person,
                                 contentDescription = "Selecionar Imagem",
                                 tint = Color.Black,
                                 modifier = Modifier.size(50.dp)
@@ -207,6 +214,7 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                         onValueChange = { password = it },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                        visualTransformation = PasswordVisualTransformation(),
                         label = { Text("Senha") }
                     )
                 }
