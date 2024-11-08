@@ -11,6 +11,7 @@ import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.model.StudentModel
+import com.uri.bolanope.model.StudentsCount
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.model.TokenModel
 import com.uri.bolanope.model.TourneyModel
@@ -45,6 +46,10 @@ interface ApiService {
     @GET("user/{id}")
     fun getUserById(@Path("id") id: String): Call<UserModel>
 
+    @GET("user/{id}/students/count")
+    fun getStudentsByTeacher(@Path("id") id: String): Call<StudentsCount>
+
+
     @Multipart
     @POST("user/")
     fun postUser(
@@ -55,6 +60,19 @@ interface ApiService {
         @Part("birth") birth: RequestBody,
         @Part("cep") cep: RequestBody,
         @Part file_url: MultipartBody.Part?,
+    ): Call<CreateUserResponseModel>
+
+    @Multipart
+    @POST("user/professor")
+    fun postProfessor(
+        @Part("email") email: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part("password") password: RequestBody,
+        @Part("cpf") cpf: RequestBody,
+        @Part("birth") birth: RequestBody,
+        @Part("cep") cep: RequestBody,
+        @Part file_url: MultipartBody.Part?,
+        @Header("Authorization") token: String
     ): Call<CreateUserResponseModel>
 
     @Multipart

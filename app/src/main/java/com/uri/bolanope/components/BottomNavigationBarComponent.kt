@@ -24,6 +24,14 @@ import com.uri.bolanope.utils.SharedPreferencesManager
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val context = LocalContext.current
+    val userRole = SharedPreferencesManager.getUserRole(context)
+
+    val labelText = if (userRole == "admin") "Home Admin" else "Home"
+    val onClickAction = if (userRole == "admin") {
+        { onClickHomeAdmin(navController) }
+    } else {
+        { onClickHome(navController) }
+    }
 
     BottomNavigation(
         backgroundColor = Color(0xFF77CC5C),
@@ -35,9 +43,9 @@ fun BottomNavigationBar(navController: NavHostController) {
     {
         BottomNavigationItem(
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home", tint= Color.White) },
-            label = { Text("Home", color= Color.White) },
+            label = { Text(labelText, color= Color.White) },
             selected = false,
-            onClick = { onClickHome(navController) }
+            onClick = onClickAction
         )
         BottomNavigationItem(
             icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificações", tint= Color.White) },
@@ -65,6 +73,10 @@ fun onClickProfile(navController: NavHostController, context: Context) {
 
 fun onClickHome(navController: NavHostController){
     navController.navigate("home")
+}
+
+fun onClickHomeAdmin(navController: NavHostController){
+    navController.navigate("homeAdmin")
 }
 
 fun onClickNotification(navController: NavHostController){

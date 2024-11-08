@@ -9,6 +9,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,10 +31,13 @@ fun AdminDashboard(navController: NavHostController) {
                 CardAdmin(navController, icon = Icons.Default.Person, "Usuários por idade", "users")
             }
             Row {
-                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times Inscritos por Torneio", "teamsByTourney")
+                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Times inscritos por torneio", "teamsByTourney")
             }
             Row {
-                CardAdmin(navController, icon = Icons.Default.EmojiEvents, "Horários mais reservados por quadra", "most-reserved-times-fields-list")
+                CardAdmin(navController, icon = Icons.Default.SportsSoccer, "Horários mais reservados por quadra", "most-reserved-times-fields-list")
+            }
+            Row {
+                CardAdmin(navController, icon = Icons.Default.Person, "Número de alunos por professor ", "studentsByTeacher")
             }
         }
     }

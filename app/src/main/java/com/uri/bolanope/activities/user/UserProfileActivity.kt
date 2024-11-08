@@ -31,7 +31,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -296,15 +296,6 @@ fun UserProfile(navController: NavHostController, userId: String?) {
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    if (userRole == "admin") {
-                        Button(
-                            onClick = {
-                                navController.navigate("homeAdmin")
-                            }, modifier = Modifier.width(150.dp)
-                        ) {
-                            Text("Home do Admin")
-                        }
-                    }
                     Button(
                         onClick = {
                             val userModel = EditUserModel(
@@ -337,18 +328,21 @@ fun UserProfile(navController: NavHostController, userId: String?) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(32.dp)
                     ) {
-                        Button(
-                            onClick = {
-                                showDialog = true
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                containerColor = Color.Red,
-                                contentColor = Color.White
-                            ),
-                            modifier = Modifier.width(150.dp)
-                        ) {
-                            Text("Apagar conta")
+                        if(userRole != "admin") {
+                            Button(
+                                onClick = {
+                                    showDialog = true
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White
+                                ),
+                                modifier = Modifier.width(150.dp)
+                            ) {
+                                Text("Apagar conta")
+                            }
                         }
+
 
                         Button(
                             onClick = {
@@ -431,7 +425,6 @@ fun onClickButtonSignUp(
     val cpfPart = userModel.cpf.toRequestBody("text/plain".toMediaTypeOrNull())
     val birthPart = userModel.birth.toRequestBody("text/plain".toMediaTypeOrNull())
     val cepPart = userModel.cep.toRequestBody("text/plain".toMediaTypeOrNull())
-
 
     val call = ApiClient.apiService.postUser(
         emailPart,

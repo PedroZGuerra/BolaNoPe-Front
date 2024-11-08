@@ -22,6 +22,7 @@ import androidx.work.WorkManager
 import com.uri.bolanope.activities.admin.AdminDashboard
 import com.uri.bolanope.activities.admin.MostReservedTimes
 import com.uri.bolanope.activities.admin.MostReservedTimesFieldList
+import com.uri.bolanope.activities.admin.StudentsByTeacher
 import com.uri.bolanope.activities.admin.TeamsByTourney
 import com.uri.bolanope.activities.admin.UsersActivity
 import com.uri.bolanope.activities.common.HomeAdmin
@@ -279,6 +280,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("most-reserved-times-fields-list") {
                             MostReservedTimesFieldList(navController)
+                        }
+                        composable("studentsByTeacher") {
+                            StudentsByTeacher(navController)
                         }
                     }
                 }

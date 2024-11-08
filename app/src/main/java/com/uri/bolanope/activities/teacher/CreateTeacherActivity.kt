@@ -1,23 +1,14 @@
 package com.uri.bolanope.activities.teacher
 
-import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,46 +17,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import com.uri.bolanope.activities.user.onClickButtonSignUp
 import com.uri.bolanope.model.UserModel
-import com.uri.bolanope.utils.SharedPreferencesManager
-import com.uri.bolanope.utils.decodeJWT
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.uri.bolanope.activities.field.base64ToBitmap
-import com.uri.bolanope.activities.field.getFileName
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.MaskVisualTransformation
+import com.uri.bolanope.utils.SharedPreferencesManager
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
-import java.io.InputStream
 
 @Composable
 fun CreateTeacherActivity(navController: NavHostController) {
     val context = LocalContext.current
+    val token = SharedPreferencesManager.getToken(context)
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -199,7 +175,7 @@ fun CreateTeacherActivity(navController: NavHostController) {
                         email = email,
                         password = password,
                         cep = cep,
-                        role = "Teacher",
+                        role = "professor",
                         patio = null,
                         complement = null,
                         neighborhood = null,
@@ -208,13 +184,15 @@ fun CreateTeacherActivity(navController: NavHostController) {
                         image = null
                     )
 
-                    onClickButtonCreateTeacher(context, userModel) { response ->
-                        if (response != null) {
-                            navController.navigate("homeAdmin")
+                    if (token != null) {
+                        onClickButtonCreateTeacher(token, userModel) { response ->
+                            if (response != null) {
+                                navController.navigate("homeAdmin")
 
 
-                        } else {
-                            Toast.makeText(context, "Falha ao criar conta", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(context, "Falha ao criar conta", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }) {
@@ -225,7 +203,7 @@ fun CreateTeacherActivity(navController: NavHostController) {
     )
 }
 
-fun onClickButtonCreateTeacher(context: Context, userModel: UserModel, callback: (CreateUserResponseModel?) -> Unit) {
+fun onClickButtonCreateTeacher(token: String, userModel: UserModel, callback: (CreateUserResponseModel?) -> Unit) {
         val emailPart = userModel.email.toRequestBody("text/plain".toMediaTypeOrNull())
         val namePart = userModel.name.toRequestBody("text/plain".toMediaTypeOrNull())
         val passwordPart = userModel.password.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -233,15 +211,15 @@ fun onClickButtonCreateTeacher(context: Context, userModel: UserModel, callback:
         val birthPart = userModel.birth.toRequestBody("text/plain".toMediaTypeOrNull())
         val cepPart = userModel.cep.toRequestBody("text/plain".toMediaTypeOrNull())
 
-
-        val call = ApiClient.apiService.postUser(
+        val call = ApiClient.apiService.postProfessor(
             emailPart,
             namePart,
             passwordPart,
             cpfPart,
             birthPart,
             cepPart,
-            file_url = null
+            file_url = null,
+            "Bearer $token"
         )
         apiCall(call, callback)
 }

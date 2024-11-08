@@ -25,7 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -201,31 +201,33 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
                             }
                         }
                     }
-                    if (teamsUserIsLeader.value?.isNotEmpty() == true) {
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                        ) {
-                            Button(
-                                onClick = {
-                                    showAddTeamPopup = true
-                                    mode = "add"
+                    if(userRole != "admin") {
+                        if (teamsUserIsLeader.value?.isNotEmpty() == true) {
+                            Row(
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        showAddTeamPopup = true
+                                        mode = "add"
+                                    }
+                                ) {
+                                    Text("Inscrever meu time")
                                 }
-                            ) {
-                                Text("Inscrever meu time")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    showAddTeamPopup = true
-                                    mode = "remove"
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = Color.Red,
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text("Retirar meu time")
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = {
+                                        showAddTeamPopup = true
+                                        mode = "remove"
+                                    },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = Color.Red,
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Text("Retirar meu time")
+                                }
                             }
                         }
                     }

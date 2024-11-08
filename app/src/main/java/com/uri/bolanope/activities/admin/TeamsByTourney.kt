@@ -32,7 +32,6 @@ import com.uri.bolanope.components.BarChartComposable
 import com.uri.bolanope.components.PieChartData
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.TourneyModel
-import com.uri.bolanope.ui.theme.Green80
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale

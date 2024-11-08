@@ -1,6 +1,7 @@
 package com.uri.bolanope.activities.common
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -68,11 +69,11 @@ fun HomePage(navController: NavHostController) {
         getAllUsers { result ->
 
             if(result != null){
-                result.forEach({ user ->
-                    if(user.role == "professor"){
+                result.forEach { user ->
+                    if (user.role == "professor") {
                         teachers.value = teachers.value?.plus(user)
                     }
-                })
+                }
             } else {
                 Toast.makeText(context, "Falha ao carregar os professores.", Toast.LENGTH_LONG).show()
             }
@@ -213,7 +214,11 @@ fun HomePage(navController: NavHostController) {
                         .padding(8.dp)
                 ) {
                     items(teachers.value.orEmpty()) { teacher ->
-                        TeacherCard(navController, teacher)
+                        Box(
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            TeacherCard(navController, teacher)
+                        }
                     }
                 }
             }

@@ -46,6 +46,7 @@ fun ExploreTeams(navController: NavHostController) {
     val teams = remember { mutableStateOf<List<TeamModel>?>(null) }
     val context = LocalContext.current
     val userId = SharedPreferencesManager.getUserId(context)
+    val userRole = SharedPreferencesManager.getUserRole(context)
 
     LaunchedEffect(Unit) {
         getAllTeams { result ->
@@ -60,46 +61,50 @@ fun ExploreTeams(navController: NavHostController) {
     Scaffold(
         topBar = { TopBar("Times") },
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier
-                    .padding(vertical = 16.dp),
-                onClick = {
-                    navController.navigate("createTeam")
-            },
-                containerColor = Green80,
-                shape = CircleShape
+            if(userRole != "admin") {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp),
+                    onClick = {
+                        navController.navigate("createTeam")
+                    },
+                    containerColor = Green80,
+                    shape = CircleShape
 
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team", tint = Color.White)
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team", tint = Color.White)
+                }
             }
         },
         content = { paddingValues ->
             Column {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                ) {
-                    Button(
+                if(userRole != "admin") {
+                    Row (
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp, end = 4.dp),
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp, end = 4.dp),
 
-                        onClick = ({
-                            navController.navigate("myTeams/true")
-                        })
-                    ) {
-                        Text("Sou líder")
-                    }
-                    Button(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 4.dp, end = 8.dp),
-                        onClick = ({
-                            navController.navigate("myTeams/false")
-                        })
-                    ) {
-                        Text("Sou membro")
+                            onClick = ({
+                                navController.navigate("myTeams/true")
+                            })
+                        ) {
+                            Text("Sou líder")
+                        }
+                        Button(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 4.dp, end = 8.dp),
+                            onClick = ({
+                                navController.navigate("myTeams/false")
+                            })
+                        ) {
+                            Text("Sou membro")
+                        }
                     }
                 }
                 teams.value?.let { teamList ->

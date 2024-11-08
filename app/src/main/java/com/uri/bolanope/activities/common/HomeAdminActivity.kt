@@ -89,7 +89,7 @@ fun HomeAdmin(navController: NavHostController) {
                     .padding(top = 16.dp)
             ) {
                 CardAdmin(navController, Icons.Filled.Home, "Home", "home", Modifier.weight(1f))
-                CardAdmin(navController, Icons.Filled.SportsSoccer, "Campos", "fields", Modifier.weight(1f))
+                CardAdmin(navController, Icons.Filled.SportsSoccer, "Quadras", "fields", Modifier.weight(1f))
             }
             Row(
                 modifier = Modifier
