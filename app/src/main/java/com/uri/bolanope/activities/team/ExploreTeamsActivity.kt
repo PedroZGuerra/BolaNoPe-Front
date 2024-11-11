@@ -1,6 +1,10 @@
 package com.uri.bolanope.activities.team
 
+import android.graphics.Bitmap
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -17,6 +22,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,14 +33,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.TeamModel
 import com.uri.bolanope.services.ApiClient
@@ -131,6 +143,8 @@ fun ExploreTeams(navController: NavHostController) {
 
 @Composable
 fun TeamCard(team: TeamModel, navController: NavHostController, userId: String) {
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    imageBitmap = team.image?.let { base64ToBitmap(it) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -141,18 +155,43 @@ fun TeamCard(team: TeamModel, navController: NavHostController, userId: String) 
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = team.name!!, style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(text = team.description!!, style = MaterialTheme.typography.bodyMedium)
-            if (userId !in team.members_id!!) {
-                val openSpots = 5 - team.members_id.size
-                if (openSpots > 0) {
-                    Text(
-                        text = "Esse time tem $openSpots vaga(s) aberta(s)!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFFFFA500)
-                    )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            if (imageBitmap != null) {
+                Image(
+                    bitmap = imageBitmap!!.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .padding(end = 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Filled.Groups,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .padding(end = 8.dp)
+                )
+            }
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = team.name!!, style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = team.description!!, style = MaterialTheme.typography.bodyMedium)
+                if (userId !in team.members_id!!) {
+                    val openSpots = 5 - team.members_id.size
+                    if (openSpots > 0) {
+                        Text(
+                            text = "Esse time tem $openSpots vaga(s) aberta(s)!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFFFFA500)
+                        )
+                    }
                 }
             }
         }

@@ -1,8 +1,14 @@
 package com.uri.bolanope.activities.team
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,14 +17,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -30,10 +40,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.model.TeamModel
@@ -54,6 +69,8 @@ fun EditTeam(navController: NavHostController, teamId: String?) {
     var selectedMembers by remember { mutableStateOf<List<UserModel?>>(List(5) { null }) }
     var showUserPopup by remember { mutableStateOf<Pair<Boolean, Int>>(Pair(false, -1)) }
     var searchQuery by remember { mutableStateOf("") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var base64String by remember { mutableStateOf("") }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
@@ -61,6 +78,9 @@ fun EditTeam(navController: NavHostController, teamId: String?) {
                 team.value = result
                 teamName = result?.name ?: ""
                 description = result?.description ?: ""
+                if (result != null) {
+                    base64String = result.image.toString()
+                }
                 result?.members_id?.forEachIndexed { index, memberId ->
                     getUserById(memberId) { user ->
                         if (user != null && index < selectedMembers.size) {
@@ -82,6 +102,14 @@ fun EditTeam(navController: NavHostController, teamId: String?) {
         }
     }
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+        }
+    }
+
     Scaffold(
         topBar = { TopBar("Editar Time") },
         modifier = Modifier.padding(horizontal = 8.dp)
@@ -94,6 +122,56 @@ fun EditTeam(navController: NavHostController, teamId: String?) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            IconButton(
+                onClick = { launcher.launch("image/*") },
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color.Transparent, shape = CircleShape)
+                    .border(1.dp, Color.Black, CircleShape)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                ) {
+                    if (selectedImageUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(selectedImageUri),
+                            contentDescription = "Imagem Selecionada",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else if (base64String.isNotBlank()) {
+                        val bitmap = base64ToBitmap(base64String)
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Imagem Carregada",
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Groups,
+                                contentDescription = "Selecionar Imagem",
+                                tint = Color.Black,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            Icons.Default.Groups,
+                            contentDescription = "Selecionar Imagem",
+                            tint = Color.Black,
+                            modifier = Modifier.size(50.dp)
+                        )
+                    }
+                }
+            }
+
             TextField(
                 value = teamName,
                 onValueChange = { teamName = it },

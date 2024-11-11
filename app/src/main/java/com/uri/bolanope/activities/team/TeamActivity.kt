@@ -1,6 +1,7 @@
 package com.uri.bolanope.activities.team
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -31,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.uri.bolanope.activities.field.base64ToBitmap
 import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.components.CommentCard
@@ -59,14 +62,15 @@ fun Team(navController: NavHostController, teamId: String?) {
     val showDeleteDialog = remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val numberOfRequests = remember { mutableStateOf(0) }
-
     val commentArray = remember { mutableStateListOf<CommentModel>() }
+    var base64String by remember { mutableStateOf("") }
 
     LaunchedEffect(teamId) {
         if (teamId != null) {
             getTeamById(teamId) { result ->
                 if (result != null) {
                     team.value = result
+                    base64String = result.image.toString()
                     leader_id = result.leader_id ?: ""
 
                     result.members_id!!.forEach { memberId ->
@@ -106,11 +110,38 @@ fun Team(navController: NavHostController, teamId: String?) {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.Top
                         ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(100.dp)
+                            ) {
+                                if (base64String.isNotBlank()) {
+                                    val bitmap = base64ToBitmap(base64String)
+                                    if (bitmap != null) {
+                                        Image(
+                                            bitmap = bitmap.asImageBitmap(),
+                                            contentDescription = "Imagem Carregada",
+                                            modifier = Modifier
+                                                .size(100.dp),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Groups,
+                                            contentDescription = "Selecionar Imagem",
+                                            tint = Color.Black,
+                                            modifier = Modifier.size(50.dp)
+                                        )
+                                    }
+                                }
+                            }
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
