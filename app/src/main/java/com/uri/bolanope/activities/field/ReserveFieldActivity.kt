@@ -35,13 +35,17 @@ import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,6 +84,12 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var value_hour by remember { mutableStateOf("") }
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
+
+    // rating da quadra
+    val rating = remember { mutableIntStateOf(3) }
+
+    // rating do usuario pra quadra
+    val userRating = remember { mutableIntStateOf(5) }
 
     val field = FieldModel(
         _id = _id,
@@ -128,6 +138,9 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            StarComponent(rating, clickable = false, starSize = 24)
+
             FieldDetailRow(
                 icon = if (available) Icons.Default.Check else Icons.Default.DoNotDisturb,
                 label = "Disponível:",
@@ -165,33 +178,40 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             var showDialog by remember { mutableStateOf(false) }
 
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                if (userRole == "admin"){
-                    Button(
-                        onClick = {
-                            navController.navigate("fieldHistory/${fieldId}")
-                        },
-                    ) {
-                        Text("Histórico")
+            Column {
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    if (userRole == "admin"){
+                        Button(
+                            onClick = {
+                                navController.navigate("fieldHistory/${fieldId}")
+                            },
+                        ) {
+                            Text("Histórico")
+                        }
+
                     }
 
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = {showDialog = true},
+                    ) {
+                        Text("Alugar")
+                    }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {showDialog = true},
-                ) {
-                    Text("Alugar")
+                if (showDialog) {
+                    ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
                 }
+
+                // esse aqui o user pode clicar, o de cima é só pra mostrar
+                StarComponent(rating, clickable = true)
             }
 
-            if (showDialog) {
-                ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
-            }
         }
     }
 }
@@ -458,4 +478,26 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
         }
     }
     return timeSlots
+}
+
+@Composable
+fun StarComponent(
+    rating: MutableState<Int>,
+    clickable: Boolean = true,
+    starCount: Int = 5,
+    starSize: Int = 36,
+) {
+    Row() {
+        for (i in 1..starCount) {
+            val starColor = if (i <= rating.value) Green80 else Color.LightGray
+            androidx.compose.material3.Icon(
+                imageVector = if (i <= rating.value) Icons.Filled.Star else Icons.Outlined.Star,
+                contentDescription = null,
+                tint = starColor,
+                modifier = Modifier
+                    .size(starSize.dp)
+                    .then(if (clickable) Modifier.clickable { rating.value = i } else Modifier)
+            )
+        }
+    }
 }
