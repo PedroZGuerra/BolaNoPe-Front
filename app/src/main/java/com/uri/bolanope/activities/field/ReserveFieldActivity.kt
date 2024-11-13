@@ -63,6 +63,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.RatingModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
@@ -84,6 +85,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var value_hour by remember { mutableStateOf("") }
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
+    val userToken = SharedPreferencesManager.getToken(LocalContext.current)
 
     // rating da quadra
     val rating = remember { mutableIntStateOf(3) }
@@ -115,6 +117,13 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     location = it.location
                     obs = it.obs
                     value_hour = it.value_hour
+                }
+            }
+
+            getFieldRating(fieldId, userToken!!) { result ->
+                result?.let {
+                    Log.d("TAG", "ReserveField: ${result.average_rating}")
+                    rating.intValue = result.average_rating
                 }
             }
         }
@@ -209,11 +218,16 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 }
 
                 // esse aqui o user pode clicar, o de cima é só pra mostrar
-                StarComponent(rating, clickable = true)
+                StarComponent(userRating, clickable = true)
             }
 
         }
     }
+}
+
+fun getFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
+    val call = ApiClient.apiService.getFieldRating(fieldId, "Bearer $token")
+    apiCall(call, callback)
 }
 
 @Composable
