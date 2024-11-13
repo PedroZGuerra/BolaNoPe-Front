@@ -1,6 +1,7 @@
 package com.uri.bolanope.activities.tourney
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -26,6 +28,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -105,6 +110,18 @@ fun Tourney(tourneyId: String, navController: NavHostController) {
     tourney.value?.let { currentTourney ->
         Scaffold(
             topBar = { TopBar(currentTourney.name) },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        shareTourney(context, currentTourney)
+                    },
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    containerColor = Green80,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Share, contentDescription = "Compartilhar")
+                }
+            },
             content = { paddingValues ->
                 Column(
                     modifier = Modifier
@@ -426,4 +443,13 @@ fun removeTeamFromTourney(teamId: String, id: String, callback: (Void?) -> Unit)
     )
     val call = ApiClient.apiService.removeTeamFromTourney(id, body)
     apiCall(call, callback)
+}
+
+fun shareTourney(context: Context, tourney: TourneyModel) {
+    val shareIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "Confira o torneio: ${tourney.name}\nDescrição: ${tourney.description}\nPremiação: ${tourney.prize}")
+        type = "text/plain"
+    }
+    context.startActivity(Intent.createChooser(shareIntent, "Compartilhar Torneio"))
 }
