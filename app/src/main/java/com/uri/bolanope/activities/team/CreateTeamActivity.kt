@@ -1,11 +1,19 @@
 package com.uri.bolanope.activities.team
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -14,6 +22,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -21,9 +31,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.uri.bolanope.activities.field.base64ToBitmap
+import com.uri.bolanope.activities.field.getFileName
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.NotificationModel
 import com.uri.bolanope.model.TeamModel
@@ -31,6 +47,12 @@ import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.utils.SharedPreferencesManager
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
+import java.io.InputStream
 
 @Composable
 fun CreateTeam(navController: NavHostController) {
@@ -43,6 +65,8 @@ fun CreateTeam(navController: NavHostController) {
     var selectedMembers by remember { mutableStateOf<List<UserModel?>>(List(5) { null }) }
     var showUserPopup by remember { mutableStateOf<Pair<Boolean, Int>>(Pair(false, -1)) }
     var searchQuery by remember { mutableStateOf("") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val base64String by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         getAllUsers { result ->
@@ -60,6 +84,14 @@ fun CreateTeam(navController: NavHostController) {
         }
     }
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+        }
+    }
+
     Scaffold(
         topBar = { TopBar("Criar Time") },
         modifier = Modifier.padding(horizontal = 8.dp)
@@ -72,6 +104,56 @@ fun CreateTeam(navController: NavHostController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            IconButton(
+                onClick = { launcher.launch("image/*") },
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color.Transparent, shape = CircleShape)
+                    .border(1.dp, Color.Black, CircleShape)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                ) {
+                    if (selectedImageUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(selectedImageUri),
+                            contentDescription = "Imagem Selecionada",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else if (base64String.isNotBlank()) {
+                        val bitmap = base64ToBitmap(base64String)
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Imagem Carregada",
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Groups,
+                                contentDescription = "Selecionar Imagem",
+                                tint = Color.Black,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            Icons.Default.Groups,
+                            contentDescription = "Selecionar Imagem",
+                            tint = Color.Black,
+                            modifier = Modifier.size(50.dp)
+                        )
+                    }
+                }
+            }
+
             TextField(
                 value = teamName,
                 onValueChange = { teamName = it },
@@ -155,9 +237,10 @@ fun CreateTeam(navController: NavHostController) {
                             leader_id = userId.toString(),
                             name = teamName,
                             description = description,
-                            members_id = selectedMembers.mapNotNull { it?._id }
+                            members_id = selectedMembers.mapNotNull { it?._id },
+                            image = null
                         )
-                        createTeam(teamModel, userToken!!) { response ->
+                        createTeam(context, teamModel, selectedImageUri, userToken!!) { response ->
                             if (response != null) {
                                 Toast.makeText(context, "Time Criado com sucesso", Toast.LENGTH_LONG).show()
                                 navController.navigate("home")
@@ -245,8 +328,41 @@ fun UserSelectionPopup(
     )
 }
 
-fun createTeam(teamModel: TeamModel, userToken: String, callback: (TeamModel?) -> Unit) {
-    val call = ApiClient.apiService.createTeam(teamModel, "Bearer $userToken")
+fun createTeam(
+    context: Context,
+    teamModel: TeamModel,
+    imageUri: Uri?,
+    userToken: String,
+    callback: (TeamModel?) -> Unit
+) {
+    val contentResolver: ContentResolver = context.contentResolver
+
+    val imagePart = imageUri?.let {
+        val inputStream: InputStream? = contentResolver.openInputStream(it)
+        val file = File(context.cacheDir, getFileName(contentResolver, it) ?: "image_temp.jpg")
+
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+        MultipartBody.Part.createFormData("file_url", file.name, requestFile)
+    }
+    val descriptionPart = teamModel.description?.toRequestBody("text/plain".toMediaTypeOrNull())
+    val leaderIdPart = teamModel.leader_id?.toRequestBody("text/plain".toMediaTypeOrNull())
+    val membersIdParts = teamModel.members_id?.map { memberId ->
+        MultipartBody.Part.createFormData("members_id", memberId)
+    }
+    val namePart = teamModel.name?.toRequestBody("text/plain".toMediaTypeOrNull())
+    val call = ApiClient.apiService.createTeam(
+        descriptionPart,
+        leaderIdPart,
+        membersIdParts,
+        namePart,
+        imagePart,
+        "Bearer $userToken")
     apiCall(call, callback)
 }
 

@@ -162,9 +162,14 @@ interface ApiService {
         @Path("id") id: String,
     ): Call<List<TeamModel>?>
 
+    @Multipart
     @POST("team/")
     fun createTeam(
-        @Body body: TeamModel,
+        @Part("description") description: RequestBody?,
+        @Part("leader_id") leader_id: RequestBody?,
+        @Part members_id: List<MultipartBody.Part>?,
+        @Part("name") name: RequestBody?,
+        @Part file: MultipartBody.Part?,
         @Header("Authorization") token: String
     ): Call<TeamModel?>
 

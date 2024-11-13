@@ -5,5 +5,6 @@ data class TeamModel(
     val description: String?,
     val leader_id: String?,
     val members_id: List<String>?,
-    val name: String?
+    val name: String?,
+    val image: String?
 )
