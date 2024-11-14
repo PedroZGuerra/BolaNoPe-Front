@@ -327,4 +327,12 @@ interface ApiService {
         @Header("Authorization")
     token: String
     ): Call<RatingModel>
+
+    @POST("rating/field/{id}")
+    fun postFieldRating(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+        token: String
+    ): Call<RatingModel>
 }

@@ -7,6 +7,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,9 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarHalf
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -52,6 +56,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -88,10 +95,10 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     val userToken = SharedPreferencesManager.getToken(LocalContext.current)
 
     // rating da quadra
-    val rating = remember { mutableIntStateOf(3) }
+    val rating = remember { mutableFloatStateOf(3.0f) }
 
     // rating do usuario pra quadra
-    val userRating = remember { mutableIntStateOf(5) }
+    val userRating = remember { mutableFloatStateOf(5.0f) }
 
     val field = FieldModel(
         _id = _id,
@@ -123,7 +130,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
             getFieldRating(fieldId, userToken!!) { result ->
                 result?.let {
                     Log.d("TAG", "ReserveField: ${result.average_rating}")
-                    rating.intValue = result.average_rating
+                    rating.floatValue = result.average_rating
                 }
             }
         }
@@ -148,7 +155,11 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            StarComponent(rating, clickable = false, starSize = 24)
+            RatingBar(rating.floatValue,
+                onRatingChanged = {
+
+                },
+            )
 
             FieldDetailRow(
                 icon = if (available) Icons.Default.Check else Icons.Default.DoNotDisturb,
@@ -218,7 +229,11 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 }
 
                 // esse aqui o user pode clicar, o de cima é só pra mostrar
-                StarComponent(userRating, clickable = true)
+                RatingBar(userRating.floatValue,
+                    onRatingChanged = {
+                        userRating.floatValue = it
+                    },
+                )
             }
 
         }
@@ -227,6 +242,11 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
 fun getFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
     val call = ApiClient.apiService.getFieldRating(fieldId, "Bearer $token")
+    apiCall(call, callback)
+}
+
+fun postFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
+    val call = ApiClient.apiService.postFieldRating(fieldId, "Bearer $token")
     apiCall(call, callback)
 }
 
@@ -495,22 +515,33 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
 }
 
 @Composable
-fun StarComponent(
-    rating: MutableState<Int>,
-    clickable: Boolean = true,
-    starCount: Int = 5,
-    starSize: Int = 36,
+fun RatingBar(
+    rating: Float = 0.0f,
+    stars: Int = 5,
+    onRatingChanged: (Float) -> Unit,
+    starsColor: Color = Green80
 ) {
-    Row() {
-        for (i in 1..starCount) {
-            val starColor = if (i <= rating.value) Green80 else Color.LightGray
-            androidx.compose.material3.Icon(
-                imageVector = if (i <= rating.value) Icons.Filled.Star else Icons.Outlined.Star,
+
+    var isHalfStar = (rating % 1) != 0.0f
+
+    Row {
+        for (index in 1..stars) {
+            Icon(
+                imageVector =
+                if (index <= rating) {
+                    Icons.Rounded.Star
+                } else {
+                    if (isHalfStar) {
+                        isHalfStar = false
+                        Icons.Rounded.StarHalf
+                    } else {
+                        Icons.Rounded.StarOutline
+                    }
+                },
                 contentDescription = null,
-                tint = starColor,
+                tint = starsColor,
                 modifier = Modifier
-                    .size(starSize.dp)
-                    .then(if (clickable) Modifier.clickable { rating.value = i } else Modifier)
+                    .clickable { onRatingChanged(index.toFloat()) }
             )
         }
     }
