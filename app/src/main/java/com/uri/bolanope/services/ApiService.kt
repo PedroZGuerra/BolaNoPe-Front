@@ -7,6 +7,7 @@ import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.PostRatingModel
 import com.uri.bolanope.model.RatingModel
 import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
@@ -328,11 +329,11 @@ interface ApiService {
     token: String
     ): Call<RatingModel>
 
-    @POST("rating/field/{id}")
+    @POST("rating/")
     fun postFieldRating(
-        @Path("id")
-        id: String,
+        @Body
+        body: PostRatingModel,
         @Header("Authorization")
         token: String
-    ): Call<RatingModel>
+    ): Call<PostRatingModel>
 }

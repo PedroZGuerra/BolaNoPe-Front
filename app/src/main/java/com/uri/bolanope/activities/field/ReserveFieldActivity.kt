@@ -70,6 +70,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.PostRatingModel
 import com.uri.bolanope.model.RatingModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.services.ApiClient
@@ -93,6 +94,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
     val userToken = SharedPreferencesManager.getToken(LocalContext.current)
+    val context: Context = LocalContext.current
 
     // rating da quadra
     val rating = remember { mutableFloatStateOf(3.0f) }
@@ -234,6 +236,24 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                         userRating.floatValue = it
                     },
                 )
+                Button(
+                    onClick = {
+                        postFieldRating(fieldId!!, userRating.floatValue, userToken!!) { response ->
+                            if (response != null) {
+                                Log.d("ReserveField", "${response}")
+                                Toast.makeText(context, "Avaliação enviada com sucesso", Toast.LENGTH_LONG).show()
+                                getFieldRating(fieldId, userToken!!) { result ->
+                                    result?.let {
+                                        Log.d("TAG", "ReserveField: ${result.average_rating}")
+                                        rating.floatValue = result.average_rating
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, "Falha ao enviar avaliação", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    },
+                ) { Text("Enviar avaliacao") }
             }
 
         }
@@ -245,8 +265,12 @@ fun getFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> U
     apiCall(call, callback)
 }
 
-fun postFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
-    val call = ApiClient.apiService.postFieldRating(fieldId, "Bearer $token")
+fun postFieldRating(fieldId: String, rating: Float, token: String, callback: (PostRatingModel?) -> Unit) {
+    val body = PostRatingModel(
+        field_id = fieldId,
+        rating = rating
+    )
+    val call = ApiClient.apiService.postFieldRating(body, "Bearer $token")
     apiCall(call, callback)
 }
 
