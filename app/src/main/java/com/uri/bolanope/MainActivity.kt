@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+//import com.google.android.libraries.places.api.Places
 import com.uri.bolanope.activities.admin.AdminDashboard
 import com.uri.bolanope.activities.admin.MostReservedTimes
 import com.uri.bolanope.activities.admin.MostReservedTimesFieldList
@@ -56,6 +57,7 @@ import java.util.concurrent.TimeUnit
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        Places.initialize(this, "AIzaSyA0sAr05_vxaA0wSY7A6kSMYEINuR1lkqI")
         val context = this
 
         with(NotificationManagerCompat.from(this)) {

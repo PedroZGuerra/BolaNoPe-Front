@@ -6,6 +6,9 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -17,6 +20,10 @@
         android:theme="@style/Theme.BolaNoPe"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA0sAr05_vxaA0wSY7A6kSMYEINuR1lkqI"
+            />
         <activity
             android:name=".MainActivity"
             android:exported="true"

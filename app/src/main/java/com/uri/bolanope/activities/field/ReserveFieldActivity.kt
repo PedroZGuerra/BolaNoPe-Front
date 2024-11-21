@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.util.Calendar
+import android.location.Geocoder
 import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
@@ -57,6 +58,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.ReserveModel
@@ -64,6 +69,8 @@ import com.uri.bolanope.services.ApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -80,6 +87,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var value_hour by remember { mutableStateOf("") }
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
+    val context = LocalContext.current
 
     val field = FieldModel(
         _id = _id,
@@ -93,22 +101,33 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
         image = null
     )
 
+    val cameraPositionState = rememberCameraPositionState()
+
     LaunchedEffect(fieldId) {
-        if(fieldId != null){
+        if (fieldId != null) {
             getFieldById(fieldId) { field ->
                 field?.let {
                     _id = it._id.toString()
                     name = it.name
-                    available =  it.available
+                    available = it.available
                     open_time = it.open_time
                     close_time = it.close_time
                     location = it.location
                     obs = it.obs
                     value_hour = it.value_hour
+
+                    val geocoder = Geocoder(context)
+                    Log.d("reservefield", "ReserveField: ${field.location}")
+                    val latLng = fetchGeocode(field.location, geocoder)
+                    latLng?.let { position ->
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(position, 10f)
+                    }
                 }
             }
         }
     }
+
+
 
     Scaffold(
         topBar = {
@@ -188,6 +207,17 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     Text("Alugar")
                 }
             }
+
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(
+                    LatLng(-34.0, 151.0),
+                    10f // Zoom level
+                )
+            }
+
+            GoogleMap(
+                cameraPositionState = cameraPositionState
+            )
 
             if (showDialog) {
                 ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
@@ -458,4 +488,15 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
         }
     }
     return timeSlots
+}
+suspend fun fetchGeocode(location: String, geocoder: Geocoder): LatLng? {
+    return withContext(Dispatchers.IO) {
+        val addresses = geocoder.getFromLocationName(location, 1)
+        if (addresses != null && addresses.isNotEmpty()) {
+            val address = addresses[0]
+            LatLng(address.latitude, address.longitude)
+        } else {
+            null
+        }
+    }
 }
