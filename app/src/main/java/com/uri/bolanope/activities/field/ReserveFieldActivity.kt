@@ -144,10 +144,16 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
         }
         getAllRatings { result ->
             if (result != null) {
-                ratingArray.clear()
-                ratingArray.addAll(result)
-                Log.d("tag", "${ratingArray}, $result")
-            }else {
+                val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+
+                if (filteredRatings.isNotEmpty()) {
+                    ratingArray.clear()
+                    ratingArray.addAll(filteredRatings)
+                    Log.d("tag", "${ratingArray}, $filteredRatings")
+                } else {
+                    Log.d("tag", "No ratings for this fieldId")
+                }
+            } else {
                 Log.d("tag", "no comments here")
             }
         }
