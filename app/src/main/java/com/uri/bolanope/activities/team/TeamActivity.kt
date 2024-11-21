@@ -264,12 +264,13 @@ fun Team(navController: NavHostController, teamId: String?) {
                         }
 
                         item {
-                            CreateComment(teamId!!, user_token!!, user_id!!) { newComment ->
+                            CreateComment(teamId!!,null, user_token!!, user_id!!, false) { newComment ->
                                 commentArray.add(
                                     CommentModel(
                                         _id = "null",
                                         comment = newComment,
                                         team_id = teamId,
+                                        field_id = null,
                                         user_id = user_id,
                                         created_at = "agora"
                                     )

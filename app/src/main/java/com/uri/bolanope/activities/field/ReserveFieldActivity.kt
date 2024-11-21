@@ -50,6 +50,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,7 +69,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.uri.bolanope.activities.team.deleteComment
+import com.uri.bolanope.components.CommentCard
+import com.uri.bolanope.components.CreateComment
 import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.PostRatingModel
 import com.uri.bolanope.model.RatingModel
@@ -95,12 +100,11 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
     val userToken = SharedPreferencesManager.getToken(LocalContext.current)
     val context: Context = LocalContext.current
+    val user_id = SharedPreferencesManager.getUserId(context)
+    val commentArray = remember { mutableStateListOf<CommentModel>() }
 
     // rating da quadra
     val rating = remember { mutableFloatStateOf(3.0f) }
-
-    // rating do usuario pra quadra
-    val userRating = remember { mutableFloatStateOf(5.0f) }
 
     val field = FieldModel(
         _id = _id,
@@ -157,11 +161,19 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            RatingBar(rating.floatValue,
-                onRatingChanged = {
-
-                },
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                RatingBar(
+                    rating.floatValue,
+                    onRatingChanged = {
+                    }
+                )
+                Text(
+                    text = rating.floatValue.toString()
+                )
+            }
 
             FieldDetailRow(
                 icon = if (available) Icons.Default.Check else Icons.Default.DoNotDisturb,
@@ -230,47 +242,46 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
                 }
 
-                // esse aqui o user pode clicar, o de cima é só pra mostrar
-                RatingBar(userRating.floatValue,
-                    onRatingChanged = {
-                        userRating.floatValue = it
-                    },
-                )
-                Button(
-                    onClick = {
-                        postFieldRating(fieldId!!, userRating.floatValue, userToken!!) { response ->
-                            if (response != null) {
-                                Log.d("ReserveField", "${response}")
-                                Toast.makeText(context, "Avaliação enviada com sucesso", Toast.LENGTH_LONG).show()
-                                getFieldRating(fieldId, userToken!!) { result ->
-                                    result?.let {
-                                        Log.d("TAG", "ReserveField: ${result.average_rating}")
-                                        rating.floatValue = result.average_rating
-                                    }
-                                }
-                            } else {
-                                Toast.makeText(context, "Falha ao enviar avaliação", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    },
-                ) { Text("Enviar avaliacao") }
+                CreateComment(null ,fieldId!!, userToken!!, user_id!!, true) { newComment ->
+                    commentArray.add(
+                        CommentModel(
+                            _id = "null",
+                            comment = newComment,
+                            team_id = null,
+                            field_id = fieldId,
+                            user_id = user_id,
+                            created_at = "agora"
+                        )
+                    )
+                }
             }
-
+            if (commentArray.isNotEmpty()) {
+                Text(text = "Avaliações:", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                commentArray.reversed().forEach { comment ->
+                    CommentCard(
+                        userId = comment.user_id,
+                        commentText = comment.comment,
+                        commentId = comment._id!!,
+                        time = comment.created_at,
+                        onDeleteComment = {
+                            deleteComment(comment._id!!, userToken!!) { result ->
+                                Toast.makeText(
+                                    context,
+                                    "Comentário deletado com sucesso.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            commentArray.remove(comment)
+                        }
+                    )
+                }
+            }
         }
     }
 }
 
 fun getFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
     val call = ApiClient.apiService.getFieldRating(fieldId, "Bearer $token")
-    apiCall(call, callback)
-}
-
-fun postFieldRating(fieldId: String, rating: Float, token: String, callback: (PostRatingModel?) -> Unit) {
-    val body = PostRatingModel(
-        field_id = fieldId,
-        rating = rating
-    )
-    val call = ApiClient.apiService.postFieldRating(body, "Bearer $token")
     apiCall(call, callback)
 }
 
