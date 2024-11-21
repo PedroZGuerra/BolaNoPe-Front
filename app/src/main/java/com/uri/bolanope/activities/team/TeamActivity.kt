@@ -288,6 +288,7 @@ fun Team(navController: NavHostController, teamId: String?) {
                                 commentText = comment.comment,
                                 commentId = comment._id!!,
                                 time = comment.created_at,
+                                rating = null,
                                 onDeleteComment = {
                                     deleteComment(comment._id!!, user_token!!) { result ->
                                         Toast.makeText(

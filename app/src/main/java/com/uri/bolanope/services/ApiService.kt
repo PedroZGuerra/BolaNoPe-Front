@@ -1,6 +1,7 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.AcceptRequestBody
+import com.uri.bolanope.model.AllRatingModel
 import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
@@ -336,4 +337,7 @@ interface ApiService {
         @Header("Authorization")
         token: String
     ): Call<PostRatingModel>
+
+    @GET("rating/")
+    fun getAllRating(): Call<List<AllRatingModel>>
 }

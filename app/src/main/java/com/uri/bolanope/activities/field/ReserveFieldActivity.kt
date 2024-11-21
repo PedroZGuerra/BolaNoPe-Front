@@ -73,6 +73,7 @@ import com.uri.bolanope.activities.team.deleteComment
 import com.uri.bolanope.components.CommentCard
 import com.uri.bolanope.components.CreateComment
 import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.AllRatingModel
 import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.PostRatingModel
@@ -102,6 +103,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     val context: Context = LocalContext.current
     val user_id = SharedPreferencesManager.getUserId(context)
     val commentArray = remember { mutableStateListOf<CommentModel>() }
+    val ratingArray = remember { mutableStateListOf<AllRatingModel>() }
 
     // rating da quadra
     val rating = remember { mutableFloatStateOf(3.0f) }
@@ -138,6 +140,15 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     Log.d("TAG", "ReserveField: ${result.average_rating}")
                     rating.floatValue = result.average_rating
                 }
+            }
+        }
+        getAllRatings { result ->
+            if (result != null) {
+                ratingArray.clear()
+                ratingArray.addAll(result)
+                Log.d("tag", "${ratingArray}, $result")
+            }else {
+                Log.d("tag", "no comments here")
             }
         }
     }
@@ -255,23 +266,25 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     )
                 }
             }
-            if (commentArray.isNotEmpty()) {
+            if (ratingArray.isNotEmpty()) {
                 Text(text = "Avaliações:", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-                commentArray.reversed().forEach { comment ->
+                ratingArray.reversed().forEach { rating ->
                     CommentCard(
-                        userId = comment.user_id,
-                        commentText = comment.comment,
-                        commentId = comment._id!!,
-                        time = comment.created_at,
+                        userId = rating.comment.user_id,
+                        commentText = rating.comment.comment,
+                        commentId = rating.comment._id!!,
+                        time = rating.comment.created_at,
+                        rating = rating.rating.rating,
                         onDeleteComment = {
-                            deleteComment(comment._id!!, userToken!!) { result ->
+                            deleteComment(rating.comment._id!!, userToken!!) { result ->
                                 Toast.makeText(
                                     context,
                                     "Comentário deletado com sucesso.",
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-                            commentArray.remove(comment)
+                            //ajustar
+                            commentArray.remove(rating.comment)
                         }
                     )
                 }
@@ -580,4 +593,9 @@ fun RatingBar(
             )
         }
     }
+}
+
+fun getAllRatings(callback: (List<AllRatingModel>?) -> Unit){
+    val call = ApiClient.apiService.getAllRating()
+    apiCall(call, callback)
 }
