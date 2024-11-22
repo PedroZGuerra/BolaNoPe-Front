@@ -31,6 +31,7 @@ import com.uri.bolanope.activities.common.HomePage
 import com.uri.bolanope.activities.common.Welcome
 import com.uri.bolanope.activities.field.Field
 import com.uri.bolanope.activities.field.FieldHistory
+import com.uri.bolanope.activities.field.FieldMap
 import com.uri.bolanope.activities.field.Fields
 import com.uri.bolanope.activities.field.ReserveField
 import com.uri.bolanope.activities.teacher.CreateTeacherActivity
@@ -285,6 +286,17 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("studentsByTeacher") {
                             StudentsByTeacher(navController)
+                        }
+                        composable (
+                            route = "fieldMap/{location}/{name}",
+                            arguments = listOf(
+                                navArgument("location") { type = NavType.StringType },
+                                navArgument("name") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val location = backStackEntry.arguments?.getString("location")
+                            val name = backStackEntry.arguments?.getString("name")
+                            FieldMap(navController, location!!, name!!)
                         }
                     }
                 }

@@ -91,9 +91,6 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
     val context = LocalContext.current
-    var lat by remember { mutableDoubleStateOf(0.0) }
-    var lng by remember { mutableDoubleStateOf(0.0) }
-    var isMapReady by remember { mutableStateOf(false) }
 
     val field = FieldModel(
         _id = _id,
@@ -120,13 +117,6 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     obs = it.obs
                     value_hour = it.value_hour
 
-                    getGeocodeLocation(field.location) { location ->
-                        if (location != null) {
-                            lat = location.results.first().geometry.location.lat
-                            lng = location.results.first().geometry.location.lng
-                            isMapReady = true
-                        }
-                    }
                 }
             }
         }
@@ -207,27 +197,21 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 Button(
                     onClick = {showDialog = true},
                 ) {
+                    Icon(Icons.Default.Schedule, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Alugar")
                 }
-            }
-
-            if (isMapReady) {
-                val cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(LatLng(lat, lng), 18f)
-                }
-
-                GoogleMap(
-                    cameraPositionState = cameraPositionState
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = {
+                        navController.navigate("fieldMap/${field.location}/${field.name}")
+                    },
                 ) {
-                    Marker(
-                        state = MarkerState(position = LatLng(lat, lng)),
-                        title = name
-                    )
+                    Icon(Icons.Default.Place, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Ver Mapa")
                 }
-            } else {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             }
-
             if (showDialog) {
                 ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
             }
@@ -497,9 +481,4 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
         }
     }
     return timeSlots
-}
-
-fun getGeocodeLocation(location: String, callback: (GeocodeApiResponseModel?) -> Unit) {
-    val call = GoogleMapsApiClient.apiService.getGeocode(address = "Rua Bento Gonçalves 1337 Santiago RS")
-    apiCall(call, callback)
 }
