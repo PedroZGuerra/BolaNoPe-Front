@@ -47,6 +47,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
 dependencies {
@@ -64,9 +65,11 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0")
     implementation("com.google.accompanist:accompanist-pager:0.30.1")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
-    implementation("androidx.compose.material:material-icons-core:<version>")
-    implementation("androidx.compose.material:material-icons-extended:<version>")
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
     implementation("androidx.compose.material3:material3:1.3.0")
+    implementation( "com.google.android.gms:play-services-maps:18.1.0")
+    implementation( "com.google.maps.android:maps-compose:2.13.0")
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation ("com.auth0.android:jwtdecode:2.0.0")

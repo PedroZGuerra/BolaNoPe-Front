@@ -7,7 +7,6 @@ import android.icu.util.Calendar
 import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -69,6 +70,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.uri.bolanope.activities.team.deleteComment
 import com.uri.bolanope.components.CommentCard
 import com.uri.bolanope.components.CreateComment
@@ -78,8 +85,10 @@ import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.PostRatingModel
 import com.uri.bolanope.model.RatingModel
+import com.uri.bolanope.model.GeocodeApiResponseModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.services.ApiClient
+import com.uri.bolanope.services.GoogleMapsApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
@@ -99,8 +108,8 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var value_hour by remember { mutableStateOf("") }
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
+    val context = LocalContext.current
     val userToken = SharedPreferencesManager.getToken(LocalContext.current)
-    val context: Context = LocalContext.current
     val user_id = SharedPreferencesManager.getUserId(context)
     val commentArray = remember { mutableStateListOf<CommentModel>() }
     val ratingArray = remember { mutableStateListOf<AllRatingModel>() }
@@ -266,14 +275,24 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                             Text("Histórico")
                         }
 
-                    }
+                }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
                     Button(
                         onClick = {showDialog = true},
                     ) {
                         Text("Alugar")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate("fieldMap/${field.location}/${field.name}")
+                        },
+                    ) {
+                        Icon(Icons.Default.Place, contentDescription = null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Ver Mapa")
                     }
                 }
 

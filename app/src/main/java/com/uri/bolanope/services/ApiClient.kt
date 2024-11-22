@@ -52,3 +52,24 @@ inline fun <reified T> apiCall(
         }
     })
 }
+
+object SecondRetrofitClient {
+    val dotenv = dotenv {
+        directory = "/assets"
+        filename = "env"
+    }
+    private val SECOND_BASE_URL = dotenv["GOOGLE_MAPS_URL"]
+
+    val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(SECOND_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+}
+
+object GoogleMapsApiClient {
+    val apiService: GoogleMapsService by lazy {
+        SecondRetrofitClient.retrofit.create(GoogleMapsService::class.java)
+    }
+}
