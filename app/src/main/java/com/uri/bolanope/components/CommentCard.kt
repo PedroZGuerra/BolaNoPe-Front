@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.uri.bolanope.activities.field.RatingBar
 import com.uri.bolanope.activities.team.deleteTeam
 import com.uri.bolanope.activities.user.getUserById
 import com.uri.bolanope.model.UserModel
@@ -37,6 +39,7 @@ fun CommentCard(
     commentId: String,
     commentText: String,
     time: String,
+    rating: Int?,
     onDeleteComment: () -> Unit
 ) {
     val context = LocalContext.current
@@ -107,6 +110,13 @@ fun CommentCard(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    if (rating != null) {
+                        RatingBar(
+                            rating.toFloat(),
+                            onRatingChanged = {
+                            },
+                        )
+                    }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
@@ -140,13 +150,14 @@ fun CommentCard(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    if (userId == currentUserId) {
-                        TextButton(
-                            onClick = { showDeleteDialog.value = true },
-                            modifier = Modifier.align(Alignment.End)
-                        ) {
-                            Text("Deletar", color = MaterialTheme.colorScheme.error)
+                    if(rating == null) {
+                        if (userId == currentUserId) {
+                            TextButton(
+                                onClick = { showDeleteDialog.value = true },
+                                modifier = Modifier.align(Alignment.End)
+                            ) {
+                                Text("Deletar", color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }

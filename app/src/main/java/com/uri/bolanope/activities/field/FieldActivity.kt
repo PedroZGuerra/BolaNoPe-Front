@@ -39,8 +39,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.InputStream
 import android.util.Base64
+import android.util.Log
 import androidx.compose.ui.graphics.asImageBitmap
+import com.uri.bolanope.activities.team.getCommentsByTeamId
 import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.AllRatingModel
+import com.uri.bolanope.model.CommentModel
 import java.text.SimpleDateFormat
 
 @SuppressLint("SimpleDateFormat")

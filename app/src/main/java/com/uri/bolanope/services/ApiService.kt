@@ -1,12 +1,15 @@
 package com.uri.bolanope.services
 
 import com.uri.bolanope.model.AcceptRequestBody
+import com.uri.bolanope.model.AllRatingModel
 import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
+import com.uri.bolanope.model.PostRatingModel
+import com.uri.bolanope.model.RatingModel
 import com.uri.bolanope.model.RegisterStudentModel
 import com.uri.bolanope.model.RequestModel
 import com.uri.bolanope.model.ReserveModel
@@ -318,4 +321,23 @@ interface ApiService {
         @Body
         body: RegisterStudentModel,
     ): Call<StudentModel>
+
+    @GET("rating/field/{id}")
+    fun getFieldRating(
+        @Path("id")
+        id: String,
+        @Header("Authorization")
+    token: String
+    ): Call<RatingModel>
+
+    @POST("rating/")
+    fun postFieldRating(
+        @Body
+        body: PostRatingModel,
+        @Header("Authorization")
+        token: String
+    ): Call<PostRatingModel>
+
+    @GET("rating/")
+    fun getAllRating(): Call<List<AllRatingModel>>
 }
