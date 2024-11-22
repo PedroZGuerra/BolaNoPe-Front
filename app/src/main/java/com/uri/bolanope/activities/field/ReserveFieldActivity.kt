@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.util.Calendar
-import android.location.Geocoder
 import android.util.Log
 import android.widget.TimePicker
 import android.widget.Toast
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,16 +62,18 @@ import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.uri.bolanope.components.TopBar
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.GeocodeApiResponseModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.services.ApiClient
+import com.uri.bolanope.services.GoogleMapsApiClient
 import com.uri.bolanope.services.apiCall
 import com.uri.bolanope.ui.theme.Green80
 import com.uri.bolanope.utils.SharedPreferencesManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -88,6 +91,9 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
     val context = LocalContext.current
+    var lat by remember { mutableDoubleStateOf(0.0) }
+    var lng by remember { mutableDoubleStateOf(0.0) }
+    var isMapReady by remember { mutableStateOf(false) }
 
     val field = FieldModel(
         _id = _id,
@@ -100,8 +106,6 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
         value_hour = value_hour,
         image = null
     )
-
-    val cameraPositionState = rememberCameraPositionState()
 
     LaunchedEffect(fieldId) {
         if (fieldId != null) {
@@ -116,18 +120,17 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                     obs = it.obs
                     value_hour = it.value_hour
 
-                    val geocoder = Geocoder(context)
-                    Log.d("reservefield", "ReserveField: ${field.location}")
-                    val latLng = fetchGeocode(field.location, geocoder)
-                    latLng?.let { position ->
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(position, 10f)
+                    getGeocodeLocation(field.location) { location ->
+                        if (location != null) {
+                            lat = location.results.first().geometry.location.lat
+                            lng = location.results.first().geometry.location.lng
+                            isMapReady = true
+                        }
                     }
                 }
             }
         }
     }
-
-
 
     Scaffold(
         topBar = {
@@ -208,16 +211,22 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                 }
             }
 
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(
-                    LatLng(-34.0, 151.0),
-                    10f // Zoom level
-                )
-            }
+            if (isMapReady) {
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(LatLng(lat, lng), 18f)
+                }
 
-            GoogleMap(
-                cameraPositionState = cameraPositionState
-            )
+                GoogleMap(
+                    cameraPositionState = cameraPositionState
+                ) {
+                    Marker(
+                        state = MarkerState(position = LatLng(lat, lng)),
+                        title = name
+                    )
+                }
+            } else {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
 
             if (showDialog) {
                 ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
@@ -489,14 +498,8 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
     }
     return timeSlots
 }
-suspend fun fetchGeocode(location: String, geocoder: Geocoder): LatLng? {
-    return withContext(Dispatchers.IO) {
-        val addresses = geocoder.getFromLocationName(location, 1)
-        if (addresses != null && addresses.isNotEmpty()) {
-            val address = addresses[0]
-            LatLng(address.latitude, address.longitude)
-        } else {
-            null
-        }
-    }
+
+fun getGeocodeLocation(location: String, callback: (GeocodeApiResponseModel?) -> Unit) {
+    val call = GoogleMapsApiClient.apiService.getGeocode(address = "Rua Bento Gonçalves 1337 Santiago RS")
+    apiCall(call, callback)
 }

@@ -4,6 +4,7 @@ import com.uri.bolanope.model.AcceptRequestBody
 import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.CreateUserResponseModel
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.GeocodeApiResponseModel
 import com.uri.bolanope.model.LoginModel
 import com.uri.bolanope.model.MostReservedTimesModel
 import com.uri.bolanope.model.NotificationModel
@@ -19,6 +20,7 @@ import com.uri.bolanope.model.UserModel
 import com.uri.bolanope.model.addTeamToTourneyBody
 import com.uri.bolanope.model.getNumberOfTeamRequestsModel
 import com.uri.bolanope.model.tourneyAverageParticipantsModel
+import io.github.cdimascio.dotenv.dotenv
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -33,6 +35,8 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+
+private val GOOGLE_MAPS_KEY = SecondRetrofitClient.dotenv["GOOGLE_MAPS_KEY"]
 
 interface ApiService {
     @GET("user/")
@@ -318,4 +322,12 @@ interface ApiService {
         @Body
         body: RegisterStudentModel,
     ): Call<StudentModel>
+}
+
+interface GoogleMapsService {
+    @GET("geocode/json")
+    fun getGeocode(
+        @Query("address") address: String,
+        @Query("key") apiKey: String = GOOGLE_MAPS_KEY
+    ): Call<GeocodeApiResponseModel>
 }
