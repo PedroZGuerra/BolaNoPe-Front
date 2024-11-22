@@ -36,20 +36,31 @@ import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarHalf
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -65,8 +76,15 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.uri.bolanope.activities.team.deleteComment
+import com.uri.bolanope.components.CommentCard
+import com.uri.bolanope.components.CreateComment
 import com.uri.bolanope.components.TopBar
+import com.uri.bolanope.model.AllRatingModel
+import com.uri.bolanope.model.CommentModel
 import com.uri.bolanope.model.FieldModel
+import com.uri.bolanope.model.PostRatingModel
+import com.uri.bolanope.model.RatingModel
 import com.uri.bolanope.model.GeocodeApiResponseModel
 import com.uri.bolanope.model.ReserveModel
 import com.uri.bolanope.services.ApiClient
@@ -91,6 +109,14 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     var reserve_day by remember { mutableStateOf("") }
     val userRole = SharedPreferencesManager.getUserRole(LocalContext.current)
     val context = LocalContext.current
+    val userToken = SharedPreferencesManager.getToken(LocalContext.current)
+    val user_id = SharedPreferencesManager.getUserId(context)
+    val commentArray = remember { mutableStateListOf<CommentModel>() }
+    val ratingArray = remember { mutableStateListOf<AllRatingModel>() }
+    val shouldReload = remember { mutableStateOf(false) }
+
+    // rating da quadra
+    val rating = remember { mutableFloatStateOf(3.0f) }
 
     val field = FieldModel(
         _id = _id,
@@ -105,20 +131,62 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     )
 
     LaunchedEffect(fieldId) {
-        if (fieldId != null) {
+        if(fieldId != null){
             getFieldById(fieldId) { field ->
                 field?.let {
                     _id = it._id.toString()
                     name = it.name
-                    available = it.available
+                    available =  it.available
                     open_time = it.open_time
                     close_time = it.close_time
                     location = it.location
                     obs = it.obs
                     value_hour = it.value_hour
-
                 }
             }
+
+            getFieldRating(fieldId, userToken!!) { result ->
+                result?.let {
+                    Log.d("TAG", "ReserveField: ${result.average_rating}")
+                    rating.floatValue = result.average_rating
+                }
+            }
+        }
+        getAllRatings { result ->
+            if (result != null) {
+                val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+
+                if (filteredRatings.isNotEmpty()) {
+                    ratingArray.clear()
+                    ratingArray.addAll(filteredRatings)
+                    Log.d("tag", "${ratingArray}, $filteredRatings")
+                } else {
+                    Log.d("tag", "No ratings for this fieldId")
+                }
+            } else {
+                Log.d("tag", "no comments here")
+            }
+        }
+    }
+
+    LaunchedEffect(shouldReload.value) {
+        if (shouldReload.value) {
+            getAllRatings { result ->
+                if (result != null) {
+                    val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+                    if (filteredRatings.isNotEmpty()) {
+                        ratingArray.clear()
+                        ratingArray.addAll(filteredRatings)
+                        Log.d("tag", "${ratingArray}, $filteredRatings")
+                    } else {
+                        Log.d("tag", "No ratings for this fieldId")
+                    }
+                } else {
+                    Log.d("tag", "no comments here")
+                }
+            }
+            // Resetar o estado para evitar loops infinitos
+            shouldReload.value = false
         }
     }
 
@@ -140,6 +208,21 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                RatingBar(
+                    rating.floatValue,
+                    onRatingChanged = {
+                    }
+                )
+                Text(
+                    text = rating.floatValue.toString()
+                )
+            }
+
             FieldDetailRow(
                 icon = if (available) Icons.Default.Check else Icons.Default.DoNotDisturb,
                 label = "Disponível:",
@@ -177,46 +260,104 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
 
             var showDialog by remember { mutableStateOf(false) }
 
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                if (userRole == "admin"){
+            Column {
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    if (userRole == "admin"){
+                        Button(
+                            onClick = {
+                                navController.navigate("fieldHistory/${fieldId}")
+                            },
+                        ) {
+                            Text("Histórico")
+                        }
+
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = {showDialog = true},
+                    ) {
+                        Text("Alugar")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            navController.navigate("fieldHistory/${fieldId}")
+                            navController.navigate("fieldMap/${field.location}/${field.name}")
                         },
                     ) {
-                        Text("Histórico")
+                        Icon(Icons.Default.Place, contentDescription = null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Ver Mapa")
                     }
-
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {showDialog = true},
-                ) {
-                    Icon(Icons.Default.Schedule, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Alugar")
+                if (showDialog) {
+                    ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = {
-                        navController.navigate("fieldMap/${field.location}/${field.name}")
-                    },
-                ) {
-                    Icon(Icons.Default.Place, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Ver Mapa")
+
+                CreateComment(null ,fieldId!!, userToken!!, user_id!!, true) { newComment ->
+                    commentArray.add(
+                        CommentModel(
+                            _id = "null",
+                            comment = newComment,
+                            team_id = null,
+                            field_id = fieldId,
+                            user_id = user_id,
+                            created_at = "agora"
+                        )
+                    )
+                    getAllRatings { result ->
+                        if (result != null) {
+                            val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+                            if (filteredRatings.isNotEmpty()) {
+                                ratingArray.clear()
+                                ratingArray.addAll(filteredRatings)
+                                Log.d("tag", "${ratingArray}, $filteredRatings")
+                            } else {
+                                Log.d("tag", "No ratings for this fieldId")
+                            }
+                        } else {
+                            Log.d("tag", "no comments here")
+                        }
+                        shouldReload.value = true
+                    }
                 }
             }
-            if (showDialog) {
-                ReservePopup(onDismiss = { showDialog = false }, field, fieldId)
+            if (ratingArray.isNotEmpty()) {
+                Text(text = "Avaliações:", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                ratingArray.reversed().forEach { rating ->
+                    CommentCard(
+                        userId = rating.comment.user_id,
+                        commentText = rating.comment.comment,
+                        commentId = rating.comment._id!!,
+                        time = rating.comment.created_at,
+                        rating = rating.rating.rating,
+                        onDeleteComment = {
+                            deleteComment(rating.comment._id!!, userToken!!) { result ->
+                                Toast.makeText(
+                                    context,
+                                    "Comentário deletado com sucesso.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            //ajustar
+                            commentArray.remove(rating.comment)
+                        }
+                    )
+                }
             }
         }
     }
+}
+
+fun getFieldRating(fieldId: String, token: String, callback: (RatingModel?) -> Unit) {
+    val call = ApiClient.apiService.getFieldRating(fieldId, "Bearer $token")
+    apiCall(call, callback)
 }
 
 @Composable
@@ -481,4 +622,42 @@ fun generateTimeSlots(startTime: String, endTime: String, intervalMinutes: Int):
         }
     }
     return timeSlots
+}
+
+@Composable
+fun RatingBar(
+    rating: Float = 0.0f,
+    stars: Int = 5,
+    onRatingChanged: (Float) -> Unit,
+    starsColor: Color = Green80
+) {
+
+    var isHalfStar = (rating % 1) != 0.0f
+
+    Row {
+        for (index in 1..stars) {
+            Icon(
+                imageVector =
+                if (index <= rating) {
+                    Icons.Rounded.Star
+                } else {
+                    if (isHalfStar) {
+                        isHalfStar = false
+                        Icons.Rounded.StarHalf
+                    } else {
+                        Icons.Rounded.StarOutline
+                    }
+                },
+                contentDescription = null,
+                tint = starsColor,
+                modifier = Modifier
+                    .clickable { onRatingChanged(index.toFloat()) }
+            )
+        }
+    }
+}
+
+fun getAllRatings(callback: (List<AllRatingModel>?) -> Unit){
+    val call = ApiClient.apiService.getAllRating()
+    apiCall(call, callback)
 }
