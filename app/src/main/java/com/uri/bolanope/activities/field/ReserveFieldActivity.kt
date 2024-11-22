@@ -104,6 +104,7 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
     val user_id = SharedPreferencesManager.getUserId(context)
     val commentArray = remember { mutableStateListOf<CommentModel>() }
     val ratingArray = remember { mutableStateListOf<AllRatingModel>() }
+    val shouldReload = remember { mutableStateOf(false) }
 
     // rating da quadra
     val rating = remember { mutableFloatStateOf(3.0f) }
@@ -156,6 +157,27 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
             } else {
                 Log.d("tag", "no comments here")
             }
+        }
+    }
+
+    LaunchedEffect(shouldReload.value) {
+        if (shouldReload.value) {
+            getAllRatings { result ->
+                if (result != null) {
+                    val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+                    if (filteredRatings.isNotEmpty()) {
+                        ratingArray.clear()
+                        ratingArray.addAll(filteredRatings)
+                        Log.d("tag", "${ratingArray}, $filteredRatings")
+                    } else {
+                        Log.d("tag", "No ratings for this fieldId")
+                    }
+                } else {
+                    Log.d("tag", "no comments here")
+                }
+            }
+            // Resetar o estado para evitar loops infinitos
+            shouldReload.value = false
         }
     }
 
@@ -270,6 +292,21 @@ fun ReserveField(navController: NavHostController, fieldId: String?) {
                             created_at = "agora"
                         )
                     )
+                    getAllRatings { result ->
+                        if (result != null) {
+                            val filteredRatings = result.filter { rating -> rating.rating.field_id == fieldId }
+                            if (filteredRatings.isNotEmpty()) {
+                                ratingArray.clear()
+                                ratingArray.addAll(filteredRatings)
+                                Log.d("tag", "${ratingArray}, $filteredRatings")
+                            } else {
+                                Log.d("tag", "No ratings for this fieldId")
+                            }
+                        } else {
+                            Log.d("tag", "no comments here")
+                        }
+                        shouldReload.value = true
+                    }
                 }
             }
             if (ratingArray.isNotEmpty()) {

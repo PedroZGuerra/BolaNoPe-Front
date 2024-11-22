@@ -150,13 +150,14 @@ fun CommentCard(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    if (userId == currentUserId) {
-                        TextButton(
-                            onClick = { showDeleteDialog.value = true },
-                            modifier = Modifier.align(Alignment.End)
-                        ) {
-                            Text("Deletar", color = MaterialTheme.colorScheme.error)
+                    if(rating == null) {
+                        if (userId == currentUserId) {
+                            TextButton(
+                                onClick = { showDeleteDialog.value = true },
+                                modifier = Modifier.align(Alignment.End)
+                            ) {
+                                Text("Deletar", color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }
