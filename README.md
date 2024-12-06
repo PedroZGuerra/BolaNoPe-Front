@@ -2,7 +2,7 @@
 
 O projeto consiste em uma aplicação para criação de times personalizados, marcar aulas, organizar torneios, conversar em fórum e reservar quadras de futebol afiliadas ao Bola no Pé.
 
-Back-end do projeto acessivel em: https://github.com/picoliW/BolaNoPe-Back
+Back-end do projeto acessível em: https://github.com/picoliW/BolaNoPe-Back
 ## Features
 
 | Feature                            | Estado |
